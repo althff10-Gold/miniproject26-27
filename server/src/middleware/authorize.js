@@ -16,7 +16,7 @@ const authorize = (...allowedRoles) => {
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      return next(new ApiError(403, 
+      return next(new ApiError(403,
         `Access denied. Required role(s): ${allowedRoles.join(', ')}. Your role: ${req.user.role}`
       ));
     }
@@ -34,7 +34,7 @@ const requireActiveAccount = (req, res, next) => {
   }
 
   if (req.user.status !== 'active') {
-    return next(new ApiError(403, 
+    return next(new ApiError(403,
       `Account is ${req.user.status}. Please contact administrator.`
     ));
   }
