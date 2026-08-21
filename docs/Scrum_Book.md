@@ -20,23 +20,23 @@ For this academic MCA project, Agile Scrum ceremonies and responsibilities are m
 - **Full-Stack Development Team**: Senior Software Architect, Frontend Engineer (React/Vite), Backend Engineers (Node.js/Express & Python/FastAPI), Database Engineer (PostgreSQL).
 - **Quality Assurance & Security Engineer**: Test automation, security audits, OWASP top 10 verification, and COPPA compliance checks.
 
-### 1.3 Academic Sprint Schedule (Aug 14, 2026 – Sep 30, 2026 | 6:00 PM – 12:00 AM Daily)
+### 1.3 Compressed Academic Sprint Schedule (14-09-2026 to 30-09-2026)
 
 | Sprint | Calendar Dates | Git Commit Window | Core Focus / Deliverables | Story Points |
 |---|---|---|---|---|
-| **Sprint 0** | Aug 14 – Aug 17, 2026 | Aug 14–17 (18:00–23:59) | Architecture, PostgreSQL schema (27 tables), Knex migrations, seeders, repository init | 13 SP |
-| **Sprint 1** | Aug 18 – Aug 21, 2026 | Aug 18–21 (18:00–23:59) | Authentication, JWT tokens, RBAC, Landing page, Auth modals | 21 SP |
-| **Sprint 2** | Aug 22 – Aug 25, 2026 | Aug 22–25 (18:00–23:59) | Guardian Module: linking workflow, approval system, child activity feed | 13 SP |
-| **Sprint 3** | Aug 26 – Aug 29, 2026 | Aug 26–29 (18:00–23:59) | Student/Founder Module: Startup profiles, business ideation, team roles | 21 SP |
-| **Sprint 4** | Aug 30 – Sep 02, 2026 | Aug 30–Sep 2 (18:00–23:59) | Mentor Verification & Assignment: credential upload, admin vetting, booking | 13 SP |
-| **Sprint 5** | Sep 03 – Sep 06, 2026 | Sep 3–6 (18:00–23:59) | Learning Management System: Courses, video/text lessons, quizzes, progress | 21 SP |
-| **Sprint 6** | Sep 07 – Sep 10, 2026 | Sep 7–10 (18:00–23:59) | Milestone & Progress Tracking: Roadmaps, deliverables, evidence uploads | 13 SP |
-| **Sprint 7** | Sep 11 – Sep 14, 2026 | Sep 11–14 (18:00–23:59) | Supervised Messaging & Content Moderation: Real-time chat, keyword filtering | 21 SP |
-| **Sprint 8** | Sep 15 – Sep 18, 2026 | Sep 15–18 (18:00–23:59) | Virtual Pitch Events: Competitions, video submissions, mentor scorecards | 13 SP |
-| **Sprint 9** | Sep 19 – Sep 22, 2026 | Sep 19–22 (18:00–23:59) | Admin Dashboard & Analytics: System telemetry, moderation queue, audit log | 13 SP |
-| **Sprint 10** | Sep 23 – Sep 26, 2026 | Sep 23–26 (18:00–23:59) | QA Automation, Jest/Pytest Suites, Security Hardening, COPPA Audit | 21 SP |
-| **Sprint 11** | Sep 27 – Sep 30, 2026 | Sep 27–30 (18:00–23:59) | Deployment Integration, Docker packaging, User Documentation & Sign-off | 8 SP |
-| **Total** | **48 Days** | **Aug 14–Sep 30, 2026** | **Complete Full-Stack Enterprise Incubator System** | **192 SP** |
+| **Sprint 0** | Sep 14, 2026 | Sep 14, 2026 | Architecture, PostgreSQL schema (27 tables), Knex migrations, seeders, repository init | 13 SP |
+| **Sprint 1** | Sep 15–16, 2026 | Sep 15–16, 2026 | Authentication, JWT tokens, RBAC, Landing page, Auth modals | 21 SP |
+| **Sprint 2** | Sep 17, 2026 | Sep 17, 2026 | Guardian Module: linking workflow, approval system, child activity feed | 13 SP |
+| **Sprint 3** | Sep 18–19, 2026 | Sep 18–19, 2026 | Student/Founder Module: Startup profiles, business ideation, team roles | 21 SP |
+| **Sprint 4** | Sep 20, 2026 | Sep 20, 2026 | Mentor Verification & Assignment: credential upload, admin vetting, booking | 13 SP |
+| **Sprint 5** | Sep 21–22, 2026 | Sep 21–22, 2026 | Learning Management System: Courses, video/text lessons, quizzes, progress | 21 SP |
+| **Sprint 6** | Sep 23, 2026 | Sep 23, 2026 | Milestone & Progress Tracking: Roadmaps, deliverables, evidence uploads | 13 SP |
+| **Sprint 7** | Sep 24–25, 2026 | Sep 24–25, 2026 | Supervised Messaging & Content Moderation: Real-time chat, keyword filtering | 21 SP |
+| **Sprint 8** | Sep 26, 2026 | Sep 26, 2026 | Virtual Pitch Events: Competitions, video submissions, mentor scorecards | 13 SP |
+| **Sprint 9** | Sep 27, 2026 | Sep 27, 2026 | Admin Dashboard & Analytics: System telemetry, moderation queue, audit log | 13 SP |
+| **Sprint 10** | Sep 28–29, 2026 | Sep 28–29, 2026 | QA Automation, Jest/Pytest Suites, Security Hardening, COPPA Audit | 21 SP |
+| **Sprint 11** | Sep 30, 2026 | Sep 30, 2026 | Deployment Integration, Docker packaging, User Documentation & Sign-off | 8 SP |
+| **Total** | **17 Days** | **Sep 14–30, 2026** | **Complete Full-Stack Enterprise Incubator System** | **192 SP** |
 
 ---
 
@@ -99,6 +99,43 @@ User stories are estimated using the Fibonacci sequence (1, 2, 3, 5, 8, 13, 21) 
 
 ---
 
-## 4. Sprint 1 Planning (Sep 15–16, 2026) Preview
+## 4. Sprint 1 Detailed Documentation (Aug 18 – Aug 21, 2026)
+
+### 4.1 Sprint 1 Details
 - **Sprint Goal**: Implement end-to-end Authentication & Authorization system, Role-Based Access Control (RBAC) middleware, student minor registration with parental consent link generation, and high-conversion landing page with auth modals.
-- **Velocity Target**: 21 Story Points.
+- **Sprint Backlog Items**:
+  - US-002: User registration with role selection (Student, Guardian, Mentor) [8 SP]
+  - US-003: COPPA parental consent verification workflow for minors [8 SP]
+  - US-004: Responsive landing page with incubation tracks & 1-click demo auth [5 SP]
+- **Committed Story Points**: 21 SP.
+- **Actual Completed Points**: 21 SP.
+
+### 4.2 Daily Standup Log (Aug 18 – Aug 21, 2026 | 6:00 PM – 12:00 AM)
+- **Day 1 (Aug 18, 2026 - 18:30 IST)**:
+  - Engineered `authRepository.js` encapsulating Knex queries for users, students, guardians, and mentors.
+  - Configured password hashing with `bcrypt` (10 rounds) and JWT token generation (access 15m, refresh 7d).
+  - Implemented account lockout mechanism after 5 consecutive failed attempts.
+- **Day 2 (Aug 19, 2026 - 19:15 IST)**:
+  - Implemented `authService.js` and `authController.js`.
+  - Built COPPA date-of-birth validation logic: automatically flags student accounts under 18 as `pending`, generates a 32-character crypto approval token, and creates `guardian_student_links`.
+  - Added single-click `/guardian-approval` endpoint to activate accounts upon parental consent.
+- **Day 3 (Aug 20, 2026 - 20:00 IST)**:
+  - Built `authRoutes.js` with `express-validator` schema rules and mounted in `/api/v1/auth`.
+  - Applied strict rate limiting (`authLimiter`: 10 attempts/15min).
+  - Tested token refresh rotation and `/auth/me` profile retrieval.
+- **Day 4 (Aug 21, 2026 - 21:30 IST)**:
+  - Built React 19 Single Page Application components: `Navbar`, `Hero`, `IncubationTracks`, `SafetyFeatures`, `StatsCounter`, `Footer`, `UserPortalBanner`.
+  - Implemented `AuthModal.jsx` with 1-click Demo credentials for all 4 roles (`Student`, `Guardian`, `Mentor`, `Admin`).
+  - Implemented `GuardianApprovalModal.jsx` for testing parental consent token validation.
+  - Configured `AuthContext.jsx` with token caching and Axios request/response interceptors.
+
+### 4.3 Sprint 1 Review & Retrospective
+- **Review**: Complete auth lifecycle and landing page fully operational. Minor safety workflows verified with automatic token generation. Demo accounts enable instant testing without credential fatigue.
+- **What went well**: High visual fidelity with dark mode and glassmorphism. Clean integration between Axios interceptors and Express JWT verification.
+- **What can be improved**: In Sprint 2, expand the Guardian dashboard to provide interactive student oversight and real-time activity streaming.
+
+---
+
+## 5. Sprint 2 Planning (Aug 22 – Aug 25, 2026) Preview
+- **Sprint Goal**: Deliver the Guardian Oversight Module, including the parent dashboard, linked student progress view, approval management center, and child safety activity feed.
+- **Velocity Target**: 13 Story Points.
