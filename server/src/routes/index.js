@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-// Import route modules (will be created in subsequent sprints)
-// const authRoutes = require('./authRoutes');
+// Import route modules
+const authRoutes = require('./authRoutes');
 // const studentRoutes = require('./studentRoutes');
-// const guardianRoutes = require('./guardianRoutes');
+const guardianRoutes = require('./guardianRoutes');
 // const mentorRoutes = require('./mentorRoutes');
 // const adminRoutes = require('./adminRoutes');
 // const learningRoutes = require('./learningRoutes');
@@ -13,10 +13,10 @@ const router = express.Router();
 // const eventRoutes = require('./eventRoutes');
 // const notificationRoutes = require('./notificationRoutes');
 
-// Mount routes (will be uncommented as modules are implemented)
-// router.use('/auth', authRoutes);
+// Mount routes
+router.use('/auth', authRoutes);
 // router.use('/students', studentRoutes);
-// router.use('/guardians', guardianRoutes);
+router.use('/guardians', guardianRoutes);
 // router.use('/mentors', mentorRoutes);
 // router.use('/admin', adminRoutes);
 // router.use('/learning', learningRoutes);
