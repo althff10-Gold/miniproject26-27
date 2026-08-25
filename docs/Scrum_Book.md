@@ -136,6 +136,37 @@ User stories are estimated using the Fibonacci sequence (1, 2, 3, 5, 8, 13, 21) 
 
 ---
 
-## 5. Sprint 2 Planning (Aug 22 – Aug 25, 2026) Preview
+## 5. Sprint 2 Detailed Documentation (Aug 22 – Aug 25, 2026)
+
+### 5.1 Sprint 2 Details
 - **Sprint Goal**: Deliver the Guardian Oversight Module, including the parent dashboard, linked student progress view, approval management center, and child safety activity feed.
-- **Velocity Target**: 13 Story Points.
+- **Sprint Backlog Items**:
+  - US-005: Guardian single-click approval or rejection of minor platform access [8 SP]
+  - US-006: Supervised read-only visibility into child milestone roadmaps and mentor chats [5 SP]
+- **Committed Story Points**: 13 SP.
+- **Actual Completed Points**: 13 SP.
+
+### 5.2 Daily Standup Log (Aug 22 – Aug 25, 2026 | 6:00 PM – 12:00 AM)
+- **Day 1 (Aug 22, 2026 - 18:45 IST)**:
+  - Built `guardianRepository.js` encapsulating queries for linked children, child startups, audit trails, and conversation transcripts.
+  - Configured PostgreSQL join operations across `guardian_student_links`, `students`, and `users`.
+- **Day 2 (Aug 23, 2026 - 19:30 IST)**:
+  - Implemented `guardianService.js` and `guardianController.js`.
+  - Implemented consent decision handling: grants platform access upon guardian approval and registers audit actions (`GUARDIAN_APPROVE` / `GUARDIAN_REJECT`).
+- **Day 3 (Aug 24, 2026 - 20:15 IST)**:
+  - Created `guardianRoutes.js` with RBAC protection (`authorize('guardian', 'admin')`) and parameter validation.
+  - Mounted `/api/v1/guardians` in route index.
+- **Day 4 (Aug 25, 2026 - 21:00 IST)**:
+  - Built `GuardianDashboard.jsx` featuring linked child profile summary, pending consent action banner, child startup overview, supervised mentor conversation logs with AI safety tags, and real-time activity stream.
+  - Integrated portal switching into `App.jsx`.
+
+### 5.3 Sprint 2 Review & Retrospective
+- **Review**: Complete guardian supervisory lifecycle verified. Parents can review startup milestones and monitor mentor communications in read-only mode without interfering in educational workflows.
+- **What went well**: Reassuring, parent-friendly UX with clear COPPA safety tags. Seamless link between parental approval and student account activation.
+- **What can be improved**: In Sprint 3, expand the student founder portal to support multiple business ideas and interactive lean canvas worksheets.
+
+---
+
+## 6. Sprint 3 Planning (Aug 26 – Aug 29, 2026) Preview
+- **Sprint Goal**: Deliver the Student/Founder Workspace, including the startup profile builder, business ideation canvas, problem-solution validation checklists, and team collaboration.
+- **Velocity Target**: 21 Story Points.
