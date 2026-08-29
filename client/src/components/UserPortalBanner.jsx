@@ -85,22 +85,46 @@ export default function UserPortalBanner({ onOpenConsentModal }) {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {user.role === 'guardian' && (
+            <>
+              <button
+                onClick={onOpenConsentModal}
+                className="btn btn-secondary"
+                style={{ fontSize: '0.88rem', padding: '9px 16px' }}
+              >
+                Verify Child Token
+              </button>
+              <button
+                onClick={onOpenGuardianDashboard}
+                className="btn btn-primary"
+                style={{ fontSize: '0.88rem', padding: '9px 18px' }}
+              >
+                Guardian Dashboard
+                <ArrowRight size={16} />
+              </button>
+            </>
+          )}
+
+          {user.role === 'student' && (
             <button
-              onClick={onOpenConsentModal}
-              className="btn btn-secondary"
-              style={{ fontSize: '0.88rem', padding: '9px 16px' }}
+              onClick={onOpenStudentDashboard}
+              className="btn btn-primary"
+              style={{ fontSize: '0.88rem', padding: '9px 18px' }}
             >
-              Verify Child Token
+              Open Student Studio
+              <ArrowRight size={16} />
             </button>
           )}
-          <a
-            href="#tracks"
-            className="btn btn-primary"
-            style={{ fontSize: '0.88rem', padding: '9px 18px' }}
-          >
-            Explore Workspace
-            <ArrowRight size={16} />
-          </a>
+
+          {user.role !== 'guardian' && user.role !== 'student' && (
+            <a
+              href="#tracks"
+              className="btn btn-primary"
+              style={{ fontSize: '0.88rem', padding: '9px 18px' }}
+            >
+              Explore Workspace
+              <ArrowRight size={16} />
+            </a>
+          )}
         </div>
       </div>
     </div>

@@ -10,6 +10,7 @@ import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import GuardianApprovalModal from './components/GuardianApprovalModal';
 import GuardianDashboard from './components/GuardianDashboard';
+import StudentDashboard from './components/StudentDashboard';
 
 function MainLayout() {
   const { user } = useAuth();
@@ -17,14 +18,18 @@ function MainLayout() {
   const [authMode, setAuthMode] = useState('login');
   const [authRole, setAuthRole] = useState('student');
   const [consentModalOpen, setConsentModalOpen] = useState(false);
-  const [currentView, setCurrentView] = useState('landing'); // 'landing' or 'guardian'
+  const [currentView, setCurrentView] = useState('landing'); // 'landing', 'guardian', 'student'
 
-  // If guardian logs in, show guardian portal option
   const showGuardianPortal = currentView === 'guardian' || (user && user.role === 'guardian');
+  const showStudentPortal = currentView === 'student' || (user && user.role === 'student');
 
   const handleOpenAuth = (mode = 'login', role = 'student') => {
     if (role === 'guardian' && user && user.role === 'guardian') {
       setCurrentView('guardian');
+      return;
+    }
+    if (role === 'student' && user && user.role === 'student') {
+      setCurrentView('student');
       return;
     }
     setAuthMode(mode);
@@ -43,11 +48,14 @@ function MainLayout() {
       <main style={{ flex: 1 }}>
         {showGuardianPortal ? (
           <GuardianDashboard onBack={() => setCurrentView('landing')} />
+        ) : showStudentPortal ? (
+          <StudentDashboard onBack={() => setCurrentView('landing')} />
         ) : (
           <>
             <UserPortalBanner
               onOpenConsentModal={() => setConsentModalOpen(true)}
               onOpenGuardianDashboard={() => setCurrentView('guardian')}
+              onOpenStudentDashboard={() => setCurrentView('student')}
             />
             <Hero onOpenAuth={handleOpenAuth} />
             <IncubationTracks onOpenAuth={handleOpenAuth} />
