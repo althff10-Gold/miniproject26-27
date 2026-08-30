@@ -42,4 +42,6 @@ const requireActiveAccount = (req, res, next) => {
   next();
 };
 
-module.exports = { authorize, requireActiveAccount };
+module.exports = authorize;
+module.exports.authorize = authorize;
+module.exports.requireActiveAccount = requireActiveAccount;

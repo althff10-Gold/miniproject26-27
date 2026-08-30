@@ -56,4 +56,6 @@ const optionalAuth = async (req, res, next) => {
   return authenticate(req, res, next);
 };
 
-module.exports = { authenticate, optionalAuth };
+module.exports = authenticate;
+module.exports.authenticate = authenticate;
+module.exports.optionalAuth = optionalAuth;
