@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Rocket, Shield, Users, ShieldAlert, CheckCircle, ArrowRight, BookOpen, MessageSquare } from 'lucide-react';
 
-export default function UserPortalBanner({ onOpenConsentModal }) {
+export default function UserPortalBanner({ onOpenConsentModal, onOpenGuardianDashboard, onOpenStudentDashboard, onOpenMentorDashboard }) {
   const { user } = useAuth();
   if (!user) return null;
 
@@ -115,7 +115,18 @@ export default function UserPortalBanner({ onOpenConsentModal }) {
             </button>
           )}
 
-          {user.role !== 'guardian' && user.role !== 'student' && (
+          {user.role === 'mentor' && (
+            <button
+              onClick={onOpenMentorDashboard}
+              className="btn btn-primary"
+              style={{ fontSize: '0.88rem', padding: '9px 18px', background: '#6366f1' }}
+            >
+              Open Mentor Workspace
+              <ArrowRight size={16} />
+            </button>
+          )}
+
+          {user.role !== 'guardian' && user.role !== 'student' && user.role !== 'mentor' && (
             <a
               href="#tracks"
               className="btn btn-primary"

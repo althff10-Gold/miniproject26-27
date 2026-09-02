@@ -11,6 +11,7 @@ import AuthModal from './components/AuthModal';
 import GuardianApprovalModal from './components/GuardianApprovalModal';
 import GuardianDashboard from './components/GuardianDashboard';
 import StudentDashboard from './components/StudentDashboard';
+import MentorDashboard from './components/MentorDashboard';
 
 function MainLayout() {
   const { user } = useAuth();
@@ -18,10 +19,11 @@ function MainLayout() {
   const [authMode, setAuthMode] = useState('login');
   const [authRole, setAuthRole] = useState('student');
   const [consentModalOpen, setConsentModalOpen] = useState(false);
-  const [currentView, setCurrentView] = useState('landing'); // 'landing', 'guardian', 'student'
+  const [currentView, setCurrentView] = useState('landing'); // 'landing', 'guardian', 'student', 'mentor'
 
   const showGuardianPortal = currentView === 'guardian' || (user && user.role === 'guardian');
   const showStudentPortal = currentView === 'student' || (user && user.role === 'student');
+  const showMentorPortal = currentView === 'mentor' || (user && user.role === 'mentor');
 
   const handleOpenAuth = (mode = 'login', role = 'student') => {
     if (role === 'guardian' && user && user.role === 'guardian') {
@@ -30,6 +32,10 @@ function MainLayout() {
     }
     if (role === 'student' && user && user.role === 'student') {
       setCurrentView('student');
+      return;
+    }
+    if (role === 'mentor' && user && user.role === 'mentor') {
+      setCurrentView('mentor');
       return;
     }
     setAuthMode(mode);
@@ -50,12 +56,15 @@ function MainLayout() {
           <GuardianDashboard onBack={() => setCurrentView('landing')} />
         ) : showStudentPortal ? (
           <StudentDashboard onBack={() => setCurrentView('landing')} />
+        ) : showMentorPortal ? (
+          <MentorDashboard user={user} onBack={() => setCurrentView('landing')} />
         ) : (
           <>
             <UserPortalBanner
               onOpenConsentModal={() => setConsentModalOpen(true)}
               onOpenGuardianDashboard={() => setCurrentView('guardian')}
               onOpenStudentDashboard={() => setCurrentView('student')}
+              onOpenMentorDashboard={() => setCurrentView('mentor')}
             />
             <Hero onOpenAuth={handleOpenAuth} />
             <IncubationTracks onOpenAuth={handleOpenAuth} />
