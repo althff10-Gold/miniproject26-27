@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { Rocket, Sparkles, Lightbulb, Target, CheckCircle2, Award, Plus, ArrowRight, ShieldCheck, ChevronRight } from 'lucide-react';
+import { Rocket, Sparkles, Lightbulb, Target, CheckCircle2, Award, Plus, ArrowRight, ShieldCheck, ChevronRight, BookOpen } from 'lucide-react';
+import LmsView from './LmsView';
 
 export default function StudentDashboard({ onBack }) {
   const { user } = useAuth();
@@ -157,7 +158,8 @@ export default function StudentDashboard({ onBack }) {
         {[
           { id: 'ideas', label: 'Business Ideas Board', icon: Lightbulb },
           { id: 'ai_evaluator', label: 'AI Pitch & Idea Scorer', icon: Sparkles },
-          { id: 'milestones', label: 'Incubation Roadmap', icon: Target }
+          { id: 'milestones', label: 'Incubation Roadmap', icon: Target },
+          { id: 'academy', label: 'Startup Learning Academy', icon: BookOpen }
         ].map(tab => {
           const TabIcon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -397,6 +399,11 @@ export default function StudentDashboard({ onBack }) {
             ))}
           </div>
         </div>
+      )}
+
+      {/* Tab 4: LMS Academy */}
+      {activeTab === 'academy' && (
+        <LmsView />
       )}
     </div>
   );
