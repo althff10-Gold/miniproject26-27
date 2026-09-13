@@ -10,7 +10,7 @@ const mentorRoutes = require('./mentorRoutes');
 const learningRoutes = require('./learningRoutes');
 const startupRoutes = require('./startupRoutes');
 const milestoneRoutes = require('./milestoneRoutes');
-// const messageRoutes = require('./messageRoutes');
+const messageRoutes = require('./messageRoutes');
 // const eventRoutes = require('./eventRoutes');
 // const notificationRoutes = require('./notificationRoutes');
 
@@ -23,7 +23,7 @@ router.use('/mentors', mentorRoutes);
 router.use('/learning', learningRoutes);
 router.use('/startups', startupRoutes);
 router.use('/milestones', milestoneRoutes);
-// router.use('/messages', messageRoutes);
+router.use('/messages', messageRoutes);
 // router.use('/events', eventRoutes);
 // router.use('/notifications', notificationRoutes);
 
