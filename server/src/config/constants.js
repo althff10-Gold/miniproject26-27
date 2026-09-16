@@ -131,6 +131,16 @@ const ASSIGNMENT_STATUS = {
   CANCELLED: 'cancelled'
 };
 
+const AUDIT_ACTIONS = {
+  USER_REGISTER: 'user_register',
+  USER_LOGIN: 'user_login',
+  USER_LOGOUT: 'user_logout',
+  GUARDIAN_APPROVE: 'guardian_approve',
+  GUARDIAN_REJECT: 'guardian_reject',
+  PASSWORD_CHANGE: 'password_change',
+  PROFILE_UPDATE: 'profile_update'
+};
+
 module.exports = {
   ROLES,
   USER_STATUS,
@@ -149,5 +159,6 @@ module.exports = {
   MODERATION_ACTION_TYPE,
   NOTIFICATION_TYPE,
   CONVERSATION_TYPE,
-  ASSIGNMENT_STATUS
+  ASSIGNMENT_STATUS,
+  AUDIT_ACTIONS
 };
