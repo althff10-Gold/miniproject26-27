@@ -1,0 +1,839 @@
+====================================================================================================
+TEENPRENEUR HUB: A SECURE INCUBATOR PLATFORM FOR YOUNG ENTREPRENEURS
+PROJECT TECHNICAL SPECIFICATION, ARCHITECTURE, DB SCHEMA & FUNCTIONALITIES
+====================================================================================================
+
+PROJECT TITLE     : TeenPreneur Hub: A Secure Incubator Platform for Young Entrepreneurs
+ACADEMIC DETAILS : MCA Mini Project (2026 - 2027)
+STUDENT NAME     : MUHAMMED ALTHAF O K
+REGISTER NUMBER  : MES25MCA-2042
+DEVELOPMENT MODEL: Agile Scrum Methodology (12 Sprints, 48 Daily Commits, Aug 14 - Sep 30, 2026)
+GITHUB REPOSITORY: https://github.com/althff10-Gold/miniproject26-27.git
+LICENSING        : MIT Open Source License
+
+====================================================================================================
+TABLE OF CONTENTS
+====================================================================================================
+1. PROJECT OVERVIEW & PROBLEM STATEMENT
+2. SYSTEM ARCHITECTURE & WORKING MECHANISM
+3. RELATIONAL DATABASE SCHEMA (COMPLETE 27-TABLE DATA DICTIONARY)
+4. CORE MODULES & ROLE-BASED FUNCTIONALITIES
+5. AI MICROSERVICE ARCHITECTURE & WORKING
+6. SECURITY, COPPA COMPLIANCE & PRIVACY ARCHITECTURE
+7. REST API ENDPOINTS SPECIFICATION
+8. AGILE SCRUM SPRINTS & COMMIT ROADMAP (SPRINT 0 TO SPRINT 11)
+9. SETUP, EXECUTION & DEMO CREDENTIALS
+
+====================================================================================================
+1. PROJECT OVERVIEW & PROBLEM STATEMENT
+====================================================================================================
+
+1.1 Background & Problem Statement:
+Adolescent entrepreneurship is growing rapidly worldwide. However, existing startup incubator 
+platforms (like AngelList, ProductHunt, or Y Combinator Startup School) are exclusively designed for 
+legal adults. Teenagers (ages 13-19) face severe systemic hurdles:
+  - Legal & COPPA Constraints: Minors cannot legally enter contracts or share personal information 
+    without documented parental/guardian consent under COPPA (Children's Online Privacy Protection Act).
+  - Online Safety Risks: Unmoderated messaging exposes minors to predatory behavior, inappropriate 
+    content, cyberbullying, or illicit commercial solicitations.
+  - Lack of Age-Appropriate Pedagogy: Standard incubator materials assume prior business, legal, and 
+    finance degrees, lacking scaffolded gamification and step-by-step milestone mentoring.
+  - Unverified Mentors: Open internet mentorship lacks identity vetting and background checks, posing 
+    safety and liability hazards for schools and families.
+
+1.2 Proposed Solution - TeenPreneur Hub:
+TeenPreneur Hub is a specialized, secure digital startup incubation ecosystem engineered specifically 
+for school and early-college founders. Key pillars include:
+  1. Strict COPPA Compliance & Guardian Supervision: Automated parental consent workflows, age-gated 
+     verification, and real-time guardian oversight dashboards.
+  2. Verified Mentor Network: Strict background credential verification for industry professionals 
+     before they can interact with students.
+  3. AI-Powered Safety & Moderation: Dual-layer content moderation combining regex and NLP sentiment/PII 
+     scanning on all communications and pitch submissions.
+  4. Scaffolded Startup Incubation Pipeline: Guided 5-stage progression (Ideation -> Validation -> 
+     Development -> Launch -> Growth) with milestone-based progress tracking.
+  5. Integrated LMS: Bite-sized entrepreneurship courses, video lessons, and interactive quizzes.
+  6. Virtual Pitch Competitions & Demo Days: Safe, structured showcase events with multi-criteria 
+     rubrics evaluated by verified mentors.
+
+====================================================================================================
+2. SYSTEM ARCHITECTURE & WORKING MECHANISM
+====================================================================================================
+
+2.1 High-Level Architecture Diagram:
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────┐
+  │                                    CLIENT TIER                                         │
+  │  React 18 Single Page Application (SPA) built with Vite                                 │
+  │  - Responsive Glassmorphism UI / Modern Theme System                                    │
+  │  - 4 Role-Specific Dashboards (Student, Guardian, Mentor, Admin)                       │
+  │  - Real-Time WebSocket Client (Socket.io-client)                                        │
+  └───────────────────────────▲────────────────────────────────▲───────────────────────────┘
+                              │ HTTPS / REST (JSON)            │ WebSockets (WSS)
+                              │ Port 5000                      │ Port 5000
+  ┌───────────────────────────▼────────────────────────────────▼───────────────────────────┐
+  │                                  BACKEND API GATEWAY                                   │
+  │  Node.js v24 + Express.js 4 REST API Server                                            │
+  │                                                                                        │
+  │  Layer 1: Security & Middleware Layer                                                   │
+  │    - Helmet (HTTP Header Hardening)       - CORS (Cross-Origin Protection)              │
+  │    - Express-Rate-Limit (Brute-force prot) - HPP & XSS-Clean sanitization               │
+  │    - JWT Authentication Middleware        - Role-Based Access Control (RBAC)            │
+  │    - Express-Validator v7 Input Validation Middleware                                  │
+  │                                                                                        │
+  │  Layer 2: API Routing Layer (/api/v1)                                                  │
+  │    - /auth, /guardians, /mentors, /startups, /milestones, /learning, /messages, etc.   │
+  │                                                                                        │
+  │  Layer 3: Controllers Layer (Request handling & response formatting)                   │
+  │  Layer 4: Services Layer (Business logic, COPPA rules, token generation)               │
+  │  Layer 5: Repositories Layer (Data abstraction, Knex.js queries & offline fallback)    │
+  └───────────────▲────────────────────────▲───────────────────────────────▲───────────────┘
+                  │ SQL via Knex.js        │ HTTP Internal REST             │ Fallback State
+                  │ Port 5432              │ Port 8000                      │ In-Memory
+  ┌───────────────▼───────────────┐ ┌──────▼─────────────────────────┐ ┌───▼───────────────┐
+  │       DATABASE TIER           │ │       AI MICROSERVICE          │ │ RESILIENT STORE   │
+  │  PostgreSQL 16 Relational DB  │ │  Python 3.12 HTTP Server       │ │ In-Memory Mirror  │
+  │  - 27 Normalized 3NF Tables   │ │  - NLP Pitch & Idea Evaluator  │ │ Zero-crash local  │
+  │  - Foreign Keys & Cascades    │ │  - Content Safety & PII Mod    │ │ execution when DB │
+  │  - Knex Migrations & Seeds    │ │  - Mentor Matching Algorithm   │ │ offline/unstarted │
+  └───────────────────────────────┘ └────────────────────────────────┘ └───────────────────┘
+
+2.2 Working Mechanism & End-to-End Request Lifecycles:
+
+1. User Registration & COPPA Gate Lifecycle:
+   a. User fills registration form in React UI (selects Student, Guardian, or Mentor).
+   b. Student submits Date of Birth. Frontend sends payload to POST /api/v1/auth/register.
+   c. Backend calculates age. If age < 13: registration rejected (COPPA statutory restriction).
+   d. If age is 13-17 (Minor): User account is created with status = 'pending'. An approval 
+      token (crypto 32-byte hex) is generated and linked to the Guardian's email address.
+      Tokens are withheld; minor cannot login until guardian approves.
+   e. Guardian receives notification/email with cryptographic approval link.
+   f. Guardian navigates to approval modal, reviews student profile, and approves via 
+      POST /api/v1/auth/guardian-approval.
+   g. Link status updates to 'approved', student status updates to 'active', and both can login.
+   h. If student is >= 18: Account becomes immediately 'active' without requiring guardian approval.
+
+2. Startup Creation & Incubation Lifecycle:
+   a. Student navigates to Student Dashboard -> "New Startup Venture".
+   b. Student inputs startup name, industry (EdTech, FinTech, CleanTech, AI, Health), problem 
+      statement, and proposed solution.
+   c. Data is saved in `startups` and `business_ideas` tables (stage = 'ideation').
+   d. Student clicks "AI Feasibility Evaluation": Backend proxies request to Python AI Microservice 
+      (POST /evaluate-idea).
+   e. AI analyzes problem clarity, market size, viability score (0-100), and outputs improvement tips.
+   f. Student creates milestones (e.g. "Conduct 20 Customer Interviews", "Build Wireframes").
+   g. Mentors review submitted proof (URLs, files) and mark milestones as completed.
+
+3. Supervised Communication & Real-Time Moderation:
+   a. Student initiates direct chat with assigned mentor via Socket.io WebSocket connection.
+   b. Message text is intercepted BEFORE delivery: passed to AI Content Moderator (POST /moderate).
+   c. The text is checked against:
+      - Profanity & abusive language lexicons
+      - PII leaks (phone numbers, personal addresses, social security/national IDs)
+      - External unmonitored communication prompts (e.g. "text me on WhatsApp/Snapchat")
+   d. If clean: Message is persisted to `messages` table and broadcasted to room.
+   e. If flagged: Message is stored with `is_flagged = true`, severity calculated (low, medium, high, 
+      critical), entry logged in `message_flags`, and alert dispatched to Admin Moderation Queue.
+   f. Admin can inspect context and take action: dismiss, warn user, redact, or suspend account.
+
+4. Learning Management System (LMS) Flow:
+   a. Admin creates structured courses (e.g. "Startup Fundamentals", "Pitching to Investors").
+   b. Each course has sequential lessons (markdown content, embedded videos, estimated duration).
+   c. End of lesson features a quiz with multiple-choice questions (stored as JSONB in DB).
+   d. Student submits answers -> server evaluates passing threshold (e.g. 60%).
+   e. Upon passing, `learning_progress` increments; overall course completion badges awarded.
+
+5. Virtual Pitch Event & Demo Day Flow:
+   a. Admin creates a `pitch_event` with deadline and rubric guidelines.
+   b. Student founder registers startup and submits pitch deck slides URL and video demo link.
+   c. During Demo Day, verified mentors evaluate submissions using a 3-criteria rubric:
+      - Innovation Score (1-10)
+      - Feasibility Score (1-10)
+      - Presentation & Pitch Delivery Score (1-10)
+   d. System computes aggregate leaderboard and distributes feedback to founders.
+
+====================================================================================================
+3. RELATIONAL DATABASE SCHEMA (COMPLETE 27-TABLE DATA DICTIONARY)
+====================================================================================================
+
+The database is built on PostgreSQL 16 using Knex.js migrations, normalized to Third Normal Form (3NF).
+It spans 7 interconnected domains:
+
+----------------------------------------------------------------------------------------------------
+DOMAIN 1: USER, IDENTITY & ACCESS CONTROL
+----------------------------------------------------------------------------------------------------
+
+1. `users` (Central identity table for all platform users)
+   - `id`                     : INT (Primary Key, Auto-increment)
+   - `email`                  : VARCHAR(255) (NOT NULL, UNIQUE, Indexed)
+   - `password_hash`          : VARCHAR(255) (NOT NULL, Bcrypt salt rounds = 12)
+   - `role`                   : ENUM ('student', 'guardian', 'mentor', 'admin') (NOT NULL, Indexed)
+   - `status`                 : ENUM ('pending', 'active', 'suspended', 'deactivated') (DEFAULT 'pending')
+   - `first_name`             : VARCHAR(100) (NOT NULL)
+   - `last_name`              : VARCHAR(100) (NOT NULL)
+   - `phone`                  : VARCHAR(20) (NULLABLE)
+   - `avatar_url`             : VARCHAR(500) (NULLABLE)
+   - `last_login`             : TIMESTAMP (NULLABLE)
+   - `failed_login_attempts`  : INT (DEFAULT 0)
+   - `locked_until`           : TIMESTAMP (NULLABLE, Brute-force lockout timestamp)
+   - `created_at`             : TIMESTAMP (DEFAULT CURRENT_TIMESTAMP)
+   - `updated_at`             : TIMESTAMP (DEFAULT CURRENT_TIMESTAMP)
+
+2. `students` (Adolescent founder profile extension)
+   - `id`                     : INT (Primary Key, Auto-increment)
+   - `user_id`                : INT (NOT NULL, UNIQUE, FK -> users.id ON DELETE CASCADE)
+   - `school_name`            : VARCHAR(255) (NULLABLE)
+   - `grade`                  : VARCHAR(50) (NULLABLE, e.g. "10th Grade")
+   - `date_of_birth`          : DATE (NOT NULL, used for COPPA age gating)
+   - `interests`              : TEXT (NULLABLE, comma-separated domains)
+   - `bio`                    : TEXT (NULLABLE)
+   - `city`                   : VARCHAR(100) (NULLABLE)
+   - `state`                  : VARCHAR(100) (NULLABLE)
+   - `guardian_approved`      : BOOLEAN (DEFAULT FALSE)
+   - `created_at` / `updated_at`: TIMESTAMP
+
+3. `guardians` (Parent / legal guardian profile extension)
+   - `id`                     : INT (Primary Key, Auto-increment)
+   - `user_id`                : INT (NOT NULL, UNIQUE, FK -> users.id ON DELETE CASCADE)
+   - `relationship`           : VARCHAR(50) (Parent, Legal Guardian, Sponsor)
+   - `occupation`             : VARCHAR(255) (NULLABLE)
+   - `address`                : VARCHAR(500) (NULLABLE)
+   - `created_at` / `updated_at`: TIMESTAMP
+
+4. `guardian_student_links` (Parental authorization & supervision junction)
+   - `id`                     : INT (Primary Key, Auto-increment)
+   - `guardian_id`            : INT (NOT NULL, FK -> guardians.id ON DELETE CASCADE)
+   - `student_id`             : INT (NOT NULL, FK -> students.id ON DELETE CASCADE)
+   - `status`                 : ENUM ('pending', 'approved', 'rejected', 'revoked') (DEFAULT 'pending')
+   - `guardian_code`          : VARCHAR(20) (Secret pairing pin)
+   - `approval_token`         : VARCHAR(255) (Cryptographic verification token)
+   - `approved_at`            : TIMESTAMP (NULLABLE)
+   - `rejection_reason`       : TEXT (NULLABLE)
+   - `created_at` / `updated_at`: TIMESTAMP
+   - Constraints              : UNIQUE (guardian_id, student_id)
+
+----------------------------------------------------------------------------------------------------
+DOMAIN 2: MENTORSHIP & VERIFICATION
+----------------------------------------------------------------------------------------------------
+
+5. `mentors` (Industry advisor profile extension)
+   - `id`                     : INT (Primary Key, Auto-increment)
+   - `user_id`                : INT (NOT NULL, UNIQUE, FK -> users.id ON DELETE CASCADE)
+   - `expertise`              : VARCHAR(255) (Domain expertise, e.g. "Software, AI, CleanTech")
+   - `organization`           : VARCHAR(255) (Current employer or venture)
+   - `bio`                    : TEXT (NULLABLE)
+   - `years_of_experience`    : INT (NOT NULL)
+   - `linkedin_url`           : VARCHAR(500) (NULLABLE)
+   - `verification_status`    : ENUM ('pending', 'under_review', 'verified', 'rejected') (DEFAULT 'pending')
+   - `created_at` / `updated_at`: TIMESTAMP
+
+6. `mentor_verifications` (Vetting documents & admin review audit)
+   - `id`                     : INT (Primary Key, Auto-increment)
+   - `mentor_id`              : INT (NOT NULL, FK -> mentors.id ON DELETE CASCADE)
+   - `document_type`          : VARCHAR(100) ('degree', 'certification', 'id_proof', 'employment_id')
+   - `document_url`           : VARCHAR(500) (NOT NULL, Secure document storage path)
+   - `qualification`          : VARCHAR(255) (Degree/title name)
+   - `institution`            : VARCHAR(255) (Issuing college/organization)
+   - `status`                 : ENUM ('pending', 'approved', 'rejected') (DEFAULT 'pending')
+   - `reviewed_by`            : INT (FK -> users.id, Admin reviewer ID)
+   - `review_notes`           : TEXT (NULLABLE)
+   - `reviewed_at`            : TIMESTAMP (NULLABLE)
+   - `created_at` / `updated_at`: TIMESTAMP
+
+7. `mentor_assignments` (Active mentorship pairings between mentors and startups)
+   - `id`                     : INT (Primary Key, Auto-increment)
+   - `mentor_id`              : INT (NOT NULL, FK -> mentors.id ON DELETE CASCADE)
+   - `student_id`             : INT (NOT NULL, FK -> students.id ON DELETE CASCADE)
+   - `assigned_by`            : INT (FK -> users.id, Admin matching ID)
+   - `status`                 : ENUM ('active', 'paused', 'completed', 'cancelled') (DEFAULT 'active')
+   - `notes`                  : TEXT (NULLABLE)
+   - `created_at` / `updated_at`: TIMESTAMP
+   - Constraints              : UNIQUE (mentor_id, student_id)
+
+----------------------------------------------------------------------------------------------------
+DOMAIN 3: INCUBATION & STARTUP PIPELINE
+----------------------------------------------------------------------------------------------------
+
+8. `startups` (Student-founded startup ventures)
+   - `id`                     : INT (Primary Key, Auto-increment)
+   - `student_id`             : INT (NOT NULL, FK -> students.id ON DELETE CASCADE)
+   - `name`                   : VARCHAR(255) (NOT NULL)
+   - `description`            : TEXT (NULLABLE)
+   - `industry`               : VARCHAR(100) (EdTech, FinTech, CleanTech, AI, Health, E-Commerce)
+   - `logo_url`               : VARCHAR(500) (NULLABLE)
+   - `stage`                  : ENUM ('ideation', 'validation', 'development', 'launch', 'growth') (DEFAULT 'ideation')
+   - `status`                 : ENUM ('draft', 'active', 'paused', 'completed') (DEFAULT 'draft')
+   - `problem_statement`      : TEXT (NULLABLE)
+   - `solution`               : TEXT (NULLABLE)
+   - `target_audience`        : TEXT (NULLABLE)
+   - `created_at` / `updated_at`: TIMESTAMP
+
+9. `business_ideas` (Lean Canvas & business model iterations)
+   - `id`                     : INT (Primary Key, Auto-increment)
+   - `startup_id`             : INT (NOT NULL, FK -> startups.id ON DELETE CASCADE)
+   - `title`                  : VARCHAR(255) (NOT NULL)
+   - `description`            : TEXT (NULLABLE)
+   - `value_proposition`      : TEXT (NULLABLE)
+   - `target_market`          : TEXT (NULLABLE)
+   - `revenue_model`          : TEXT (NULLABLE, Subscription, Marketplace, Freemium, Ads)
+   - `status`                 : ENUM ('draft', 'submitted', 'under_review', 'approved', 'rejected') (DEFAULT 'draft')
+   - `feedback`               : TEXT (NULLABLE)
+   - `created_at` / `updated_at`: TIMESTAMP
+
+10. `milestones` (Time-bound project execution goals)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `startup_id`            : INT (NOT NULL, FK -> startups.id ON DELETE CASCADE)
+    - `title`                 : VARCHAR(255) (NOT NULL)
+    - `description`           : TEXT (NULLABLE)
+    - `due_date`              : DATE (NULLABLE)
+    - `order_index`           : INT (DEFAULT 0)
+    - `status`                : ENUM ('not_started', 'in_progress', 'completed', 'overdue') (DEFAULT 'not_started')
+    - `created_at` / `updated_at`: TIMESTAMP
+
+11. `milestone_progress` (Audit log of milestone updates & proof submissions)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `milestone_id`          : INT (NOT NULL, FK -> milestones.id ON DELETE CASCADE)
+    - `description`           : TEXT (Progress notes, deliverables, github link, demo url)
+    - `percentage`            : INT (DEFAULT 0, Range 0-100)
+    - `updated_by`            : INT (FK -> users.id)
+    - `created_at` / `updated_at`: TIMESTAMP
+
+----------------------------------------------------------------------------------------------------
+DOMAIN 4: LEARNING MANAGEMENT SYSTEM (LMS) & CURRICULUM
+----------------------------------------------------------------------------------------------------
+
+12. `courses` (Curricular units in entrepreneurship)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `title`                 : VARCHAR(255) (NOT NULL)
+    - `description`           : TEXT (NULLABLE)
+    - `category`              : VARCHAR(100) (Ideation, Market Research, Finance, Pitching)
+    - `thumbnail_url`         : VARCHAR(500) (NULLABLE)
+    - `difficulty`            : ENUM ('beginner', 'intermediate', 'advanced') (DEFAULT 'beginner')
+    - `duration_minutes`      : INT (DEFAULT 0)
+    - `status`                : ENUM ('draft', 'published', 'archived') (DEFAULT 'draft')
+    - `created_by`            : INT (FK -> users.id)
+    - `order_index`           : INT (DEFAULT 0)
+    - `created_at` / `updated_at`: TIMESTAMP
+
+13. `lessons` (Individual learning modules within a course)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `course_id`             : INT (NOT NULL, FK -> courses.id ON DELETE CASCADE)
+    - `title`                 : VARCHAR(255) (NOT NULL)
+    - `content`               : TEXT (Markdown instructional material)
+    - `video_url`             : VARCHAR(500) (NULLABLE)
+    - `duration_minutes`      : INT (DEFAULT 0)
+    - `order_index`           : INT (DEFAULT 0)
+    - `created_at` / `updated_at`: TIMESTAMP
+
+14. `quizzes` (Knowledge assessment checkpoints per course)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `course_id`             : INT (NOT NULL, FK -> courses.id ON DELETE CASCADE)
+    - `title`                 : VARCHAR(255) (NOT NULL)
+    - `description`           : TEXT (NULLABLE)
+    - `passing_score`         : INT (DEFAULT 60, percentage)
+    - `time_limit_minutes`    : INT (NULLABLE)
+    - `max_attempts`          : INT (DEFAULT 3)
+    - `created_at` / `updated_at`: TIMESTAMP
+
+15. `quiz_questions` (Assessment questions bank)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `quiz_id`               : INT (NOT NULL, FK -> quizzes.id ON DELETE CASCADE)
+    - `question_text`         : TEXT (NOT NULL)
+    - `options`               : JSONB (Array of options: ["A", "B", "C", "D"])
+    - `correct_answer`        : INT (0-based index of the correct option)
+    - `points`                : INT (DEFAULT 1)
+    - `explanation`           : TEXT (Educational rationale displayed after attempt)
+    - `order_index`           : INT (DEFAULT 0)
+    - `created_at` / `updated_at`: TIMESTAMP
+
+16. `quiz_attempts` (Student submission logs and scoring)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `student_id`            : INT (NOT NULL, FK -> students.id ON DELETE CASCADE)
+    - `quiz_id`               : INT (NOT NULL, FK -> quizzes.id ON DELETE CASCADE)
+    - `score`                 : INT (Points obtained)
+    - `total_points`          : INT (Maximum points achievable)
+    - `answers`               : JSONB (Map of question_id to selected_index)
+    - `passed`                : BOOLEAN (DEFAULT FALSE)
+    - `time_taken_seconds`    : INT (NULLABLE)
+    - `created_at` / `updated_at`: TIMESTAMP
+
+17. `learning_progress` (Tracking student progress across lessons)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `student_id`            : INT (NOT NULL, FK -> students.id ON DELETE CASCADE)
+    - `course_id`             : INT (NOT NULL, FK -> courses.id ON DELETE CASCADE)
+    - `lesson_id`             : INT (NULLABLE, FK -> lessons.id ON DELETE CASCADE)
+    - `completed`             : BOOLEAN (DEFAULT FALSE)
+    - `progress_percentage`   : INT (DEFAULT 0)
+    - `completed_at`          : TIMESTAMP (NULLABLE)
+    - `created_at` / `updated_at`: TIMESTAMP
+    - Constraints             : UNIQUE (student_id, course_id, lesson_id)
+
+----------------------------------------------------------------------------------------------------
+DOMAIN 5: SUPERVISED COMMUNICATION & MODERATION
+----------------------------------------------------------------------------------------------------
+
+18. `conversations` (Chat thread containers)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `title`                 : VARCHAR(255) (NULLABLE)
+    - `type`                  : ENUM ('direct', 'group', 'mentorship') (DEFAULT 'direct')
+    - `created_by`            : INT (FK -> users.id)
+    - `created_at` / `updated_at`: TIMESTAMP
+
+19. `conversation_participants` (Room membership and read state)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `conversation_id`       : INT (NOT NULL, FK -> conversations.id ON DELETE CASCADE)
+    - `user_id`               : INT (NOT NULL, FK -> users.id ON DELETE CASCADE)
+    - `joined_at`             : TIMESTAMP (DEFAULT CURRENT_TIMESTAMP)
+    - `last_read_at`          : TIMESTAMP (NULLABLE)
+    - Constraints             : UNIQUE (conversation_id, user_id)
+
+20. `messages` (Inter-user messages)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `conversation_id`       : INT (NOT NULL, FK -> conversations.id ON DELETE CASCADE)
+    - `sender_id`             : INT (NOT NULL, FK -> users.id ON DELETE CASCADE)
+    - `content`               : TEXT (NOT NULL)
+    - `is_flagged`            : BOOLEAN (DEFAULT FALSE, Flagged by AI or user)
+    - `is_moderated`          : BOOLEAN (DEFAULT FALSE, Reviewed by Admin)
+    - `is_deleted`            : BOOLEAN (DEFAULT FALSE, Redacted)
+    - `created_at` / `updated_at`: TIMESTAMP
+
+21. `message_flags` (Incident records for questionable interactions)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `message_id`            : INT (NOT NULL, FK -> messages.id ON DELETE CASCADE)
+    - `reason`                : TEXT (e.g. "Profanity detected", "Phone number shared", "PII leak")
+    - `flagged_words`         : JSONB (List of offensive tokens identified)
+    - `severity`              : ENUM ('low', 'medium', 'high', 'critical') (DEFAULT 'low')
+    - `status`                : ENUM ('pending', 'reviewed', 'dismissed', 'actioned') (DEFAULT 'pending')
+    - `reviewed_by`           : INT (FK -> users.id, Admin ID)
+    - `reviewed_at`           : TIMESTAMP (NULLABLE)
+    - `created_at` / `updated_at`: TIMESTAMP
+
+22. `moderation_actions` (Enforcement actions taken by administrators)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `flag_id`               : INT (NOT NULL, FK -> message_flags.id ON DELETE CASCADE)
+    - `action_type`           : ENUM ('approve', 'delete', 'warn_user', 'suspend_user')
+    - `taken_by`              : INT (NOT NULL, FK -> users.id)
+    - `notes`                 : TEXT (Administrative rationale)
+    - `created_at` / `updated_at`: TIMESTAMP
+
+----------------------------------------------------------------------------------------------------
+DOMAIN 6: VIRTUAL PITCH EVENTS & DEMO DAYS
+----------------------------------------------------------------------------------------------------
+
+23. `pitch_events` (Virtual competition schedules and rubrics)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `title`                 : VARCHAR(255) (NOT NULL)
+    - `description`           : TEXT (NULLABLE)
+    - `event_date`            : TIMESTAMP (NOT NULL)
+    - `submission_deadline`   : TIMESTAMP (NULLABLE)
+    - `max_participants`      : INT (NULLABLE)
+    - `status`                : ENUM ('upcoming', 'active', 'completed', 'cancelled') (DEFAULT 'upcoming')
+    - `created_by`            : INT (FK -> users.id)
+    - `created_at` / `updated_at`: TIMESTAMP
+
+24. `pitch_submissions` (Startup entry submissions for pitch competitions)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `event_id`              : INT (NOT NULL, FK -> pitch_events.id ON DELETE CASCADE)
+    - `startup_id`            : INT (NOT NULL, FK -> startups.id ON DELETE CASCADE)
+    - `student_id`            : INT (NOT NULL, FK -> students.id ON DELETE CASCADE)
+    - `pitch_title`           : VARCHAR(255) (NOT NULL)
+    - `pitch_content`         : TEXT (Executive summary)
+    - `presentation_url`      : VARCHAR(500) (Slide deck link / PDF)
+    - `video_url`             : VARCHAR(500) (Demo pitch video link)
+    - `status`                : ENUM ('draft', 'submitted', 'reviewed') (DEFAULT 'draft')
+    - `created_at` / `updated_at`: TIMESTAMP
+    - Constraints             : UNIQUE (event_id, student_id)
+
+25. `pitch_feedback` (Mentor scorecards & qualitative reviews)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `submission_id`         : INT (NOT NULL, FK -> pitch_submissions.id ON DELETE CASCADE)
+    - `mentor_id`             : INT (NOT NULL, FK -> mentors.id ON DELETE CASCADE)
+    - `rating`                : INT (Range 1-10)
+    - `innovation_score`      : INT (Range 1-10)
+    - `feasibility_score`     : INT (Range 1-10)
+    - `presentation_score`    : INT (Range 1-10)
+    - `strengths`             : TEXT (Key positive highlights)
+    - `improvements`          : TEXT (Constructive critique)
+    - `comments`              : TEXT (General notes)
+    - `created_at` / `updated_at`: TIMESTAMP
+    - Constraints             : UNIQUE (submission_id, mentor_id)
+
+----------------------------------------------------------------------------------------------------
+DOMAIN 7: PLATFORM GOVERNANCE & NOTIFICATIONS
+----------------------------------------------------------------------------------------------------
+
+26. `notifications` (In-app notification center)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `user_id`               : INT (NOT NULL, FK -> users.id ON DELETE CASCADE)
+    - `type`                  : VARCHAR(50) (e.g. "guardian_consent", "milestone_approved", "message")
+    - `title`                 : VARCHAR(255) (NOT NULL)
+    - `message`               : TEXT (NULLABLE)
+    - `link`                  : VARCHAR(500) (Target route link)
+    - `is_read`               : BOOLEAN (DEFAULT FALSE)
+    - `created_at` / `updated_at`: TIMESTAMP
+
+27. `audit_logs` (Immutable system security audit trail)
+    - `id`                    : INT (Primary Key, Auto-increment)
+    - `user_id`               : INT (FK -> users.id)
+    - `action`                : VARCHAR(100) (e.g. "USER_LOGIN", "GUARDIAN_CONSENT_GRANTED", "ROLE_CHANGE")
+    - `entity_type`           : VARCHAR(100) ('users', 'startups', 'messages', 'milestones')
+    - `entity_id`             : INT (ID of modified record)
+    - `old_values`            : JSONB (Previous state before edit)
+    - `new_values`            : JSONB (Updated state after edit)
+    - `ip_address`            : VARCHAR(45) (IPv4 or IPv6 of client)
+    - `user_agent`            : TEXT (Client browser/runtime string)
+    - `created_at` / `updated_at`: TIMESTAMP
+
+====================================================================================================
+4. CORE MODULES & ROLE-BASED FUNCTIONALITIES
+====================================================================================================
+
+The platform is designed around 4 distinct User Personas, each having a tailored dashboard and 
+strictly enforced permissions.
+
+----------------------------------------------------------------------------------------------------
+4.1 Young Founder (Student) Role:
+----------------------------------------------------------------------------------------------------
+  - Profile & Age Verification: Register with verified Date of Birth; triggers COPPA parental authorization.
+  - Startup Venture Management:
+    * Register startups with problem statement, solution, target audience, and industry.
+    * Track lifecycle through 5 distinct incubation stages (Ideation, Validation, Prototype, Launch, Growth).
+  - Business Idea & Lean Canvas:
+    * Iterative business model generation with value propositions, market size, and revenue models.
+    * Direct 1-click invocation of the AI Idea Evaluator for feasibility analysis.
+  - Milestone-Based Escrow / Progress:
+    * Break down complex business goals into bite-sized actionable milestones.
+    * Submit deliverable proofs (URLs, GitHub links, documentation) for mentor review.
+  - Learning Curriculum (LMS):
+    * Enroll in entrepreneurship courses with sequential video lessons and reading guides.
+    * Take interactive quizzes with real-time score calculation and automated pass/fail feedback.
+  - Supervised Mentorship & Chat:
+    * Connect with assigned industry mentors in protected real-time chat channels.
+    * All messages protected by AI safety filters ensuring safe interaction.
+  - Virtual Pitch Events & Demo Days:
+    * Register startup ventures for competitive demo days.
+    * Upload slide decks and video pitches, receiving structured multi-criteria feedback.
+
+----------------------------------------------------------------------------------------------------
+4.2 Guardian (Parent / Legal Caretaker) Role:
+----------------------------------------------------------------------------------------------------
+  - Parental Consent Gating:
+    * Authorize or reject minor student registration requests using cryptographic verification links.
+  - Supervision Portal & Oversight:
+    * Dedicated Guardian Dashboard providing real-time visibility into student activities.
+    * View enrolled courses, quiz scores, and academic progress percentages.
+  - Startup & Mentor Visibility:
+    * Review student's startup projects, submitted business plans, and milestones.
+    * View verified mentor profile, qualifications, and background checks.
+  - Access Governance:
+    * Capability to pause or revoke platform privileges at any time for safety.
+
+----------------------------------------------------------------------------------------------------
+4.3 Industry Mentor Role:
+----------------------------------------------------------------------------------------------------
+  - Professional Credential Verification:
+    * Submit identity proof, university degrees, and professional certifications for admin vetting.
+    * Verification status badge ('Verified Mentor') displayed across the incubator platform.
+  - Startup Advisory & Matching:
+    * Matched with startups by domain expertise (e.g. FinTech, AI, HealthTech).
+    * Review business ideas, lean canvas submissions, and provide actionable critique.
+  - Milestone Review & Sign-Off:
+    * Inspect student milestone submissions and evidence.
+    * Approve milestones to advance student progress meters or request revisions with notes.
+  - Virtual Pitch Judging:
+    * Serve on evaluation panels during Demo Days.
+    * Score pitches across Innovation (1-10), Feasibility (1-10), and Presentation (1-10).
+
+----------------------------------------------------------------------------------------------------
+4.4 Platform Administrator Role:
+----------------------------------------------------------------------------------------------------
+  - User & Role Governance:
+    * Manage user accounts, view active sessions, and suspend accounts violating safety policies.
+  - Mentor Verification Queue:
+    * Review submitted mentor credentials, verify documentation, and approve/reject applications.
+  - AI Safety & Moderation Operations:
+    * Access flagged messages caught by the AI Content Moderator.
+    * Execute disciplinary actions: dismiss flag, issue warnings, redact messages, or ban users.
+  - Curriculum & Event Management:
+    * Author entrepreneurship courses, video lessons, and quiz questions.
+    * Schedule and administer virtual pitch competitions and demo days.
+  - Security Auditing:
+    * Inspect immutable audit logs tracking authentication events, role elevations, and IP logs.
+
+====================================================================================================
+5. AI MICROSERVICE ARCHITECTURE & WORKING
+====================================================================================================
+
+The AI Microservice operates as an independent, lightweight HTTP service on port 8000. It utilizes 
+Python 3.12 standard library components to guarantee 100% dependency-free startup and maximum resilience.
+
+Microservice Endpoints:
+1. POST /moderate (Content Safety & PII Interception):
+   - Scans text for:
+     * Profanity, abuse, and harassment.
+     * Personally Identifiable Information (PII) leaks: Phone numbers, street addresses, national IDs.
+     * Inappropriate off-platform communication invites ("call me on", "whatsapp me at").
+   - Response includes:
+     * `is_safe`: Boolean (true / false)
+     * `flagged_words`: Array of identified trigger terms
+     * `severity`: 'low', 'medium', 'high', 'critical'
+     * `category`: 'profanity', 'pii_leak', 'solicitation', or 'clean'
+
+2. POST /evaluate-idea (Startup Feasibility & Market Analysis):
+   - Input: `title`, `problem`, `solution`, `target_market`.
+   - NLP heuristics analyze:
+     * Problem clarity & pain-point severity.
+     * Solution uniqueness and feasibility.
+     * Target market specificity and addressable scale.
+   - Outputs:
+     * `overall_score` (0-100)
+     * `dimension_scores` (Clarity, Feasibility, Market Potential, Innovation)
+     * `strengths`: Formulated positive points
+     * `recommendations`: Actionable improvements for next pitch iterations
+
+3. POST /match-mentors (Algorithmic Mentorship Matcher):
+   - Input: Startup `industry` and candidate mentor pool.
+   - Computes weighted score based on domain keyword overlap and years of industry experience.
+   - Outputs ranked list of mentors with rationale.
+
+4. GET /health:
+   - Returns microservice uptime, runtime environment, and active version status.
+
+====================================================================================================
+6. SECURITY, COPPA COMPLIANCE & PRIVACY ARCHITECTURE
+====================================================================================================
+
+6.1 COPPA Compliance Architecture:
+  - Age Gate Enforcement: All student registrants must declare Date of Birth.
+  - Direct Rejection for < 13: Absolute block preventing minors under 13 from registering without an 
+    institutional school partnership.
+  - Under-18 Authorization Gate: Minors aged 13-17 cannot activate their account or log in without 
+    documented digital consent from a parent/guardian.
+  - Cryptographic Tokens: 32-byte cryptographic hex tokens (`approval_token`) are used for one-time 
+    parental verification over secure HTTPS channels.
+  - Guardian Revocation: Guardians can revoke account access at any time, instantly suspending the student.
+
+6.2 Platform Hardening & Defense-in-Depth:
+  - Password Hashing: Industry-standard Bcrypt with 12 salt rounds; plain passwords never stored.
+  - Stateless Authentication: Dual-token JWT (JSON Web Tokens) architecture:
+    * Short-lived Access Token (15-minute validity) passed in Authorization header.
+    * Long-lived Refresh Token (7-day validity) used to rotate access tokens securely.
+  - HTTP Hardening:
+    * Helmet: Sets Content-Security-Policy (CSP), X-Frame-Options, X-Content-Type-Options, etc.
+    * CORS (Cross-Origin Resource Sharing): Dynamically validates localhost ports and production domains.
+    * HPP (HTTP Parameter Pollution): Defends against parameter array injection attacks.
+    * XSS-Clean: Sanitizes HTML tags and script elements in request payloads.
+  - Brute Force & Rate Limiting:
+    * Auth Limiter: Max 5 attempts per 15 minutes per IP on `/auth/login` and `/auth/register`.
+    * Account Lockout: Automatically locks account for 30 minutes after 5 consecutive failed logins.
+    * Global API Limiter: Max 100 requests per 15 minutes per IP address.
+  - Audit Trail:
+    * Immutable `audit_logs` record user ID, action, entity type, IP address, user agent, and timestamps.
+
+====================================================================================================
+7. REST API ENDPOINTS SPECIFICATION
+====================================================================================================
+
+BASE URL: http://localhost:5000/api/v1
+
+1. Authentication & Identity (/api/v1/auth)
+   - POST /register               : Register new student, guardian, or mentor
+   - POST /login                  : Authenticate user & issue JWT access/refresh tokens
+   - POST /refresh                : Renew access token using valid refresh token
+   - POST /logout                 : Revoke session (Requires Auth)
+   - GET  /me                     : Retrieve current authenticated user profile (Requires Auth)
+   - POST /guardian-approval      : Authorize/reject minor registration with approval token
+
+2. Guardian Oversight (/api/v1/guardians)
+   - GET  /children               : List all wards/students linked to guardian (Requires Guardian)
+   - GET  /children/:id/progress  : Detailed view of child's startups, LMS, and milestones
+   - POST /children/link          : Link student via pairing code
+   - POST /children/:id/revoke    : Suspend student's incubator access privileges
+
+3. Mentorship (/api/v1/mentors)
+   - GET  /                       : List verified mentors (Requires Auth)
+   - GET  /:id                    : Get mentor profile and assigned startups (Requires Auth)
+   - POST /verify                 : Upload background credentials for vetting (Requires Mentor)
+   - GET  /assigned/startups      : Get startups assigned to logged-in mentor (Requires Mentor)
+   - POST /evaluate-milestone     : Approve/reject milestone with mentor feedback (Requires Mentor)
+
+4. Startup & Ideation (/api/v1/startups)
+   - POST /                       : Create a new startup profile (Requires Student)
+   - GET  /                       : List startups for logged-in student (Requires Auth)
+   - GET  /:id                    : Get startup venture details, stage, and ideas (Requires Auth)
+   - PUT  /:id                    : Update startup information & stage (Requires Student)
+   - POST /:id/ideas              : Add business idea / lean canvas model (Requires Student)
+   - POST /:id/ai-evaluate        : Run AI feasibility score on startup idea (Requires Student)
+
+5. Milestones (/api/v1/milestones)
+   - POST /                       : Create new milestone for startup (Requires Student)
+   - GET  /startup/:startupId     : List milestones for a given startup (Requires Auth)
+   - PUT  /:id                    : Update milestone status & submit deliverable proof (Requires Student)
+   - POST /:id/review             : Mentor review and approval sign-off (Requires Mentor)
+
+6. Learning Management System (/api/v1/learning)
+   - GET  /courses                : List all published entrepreneurship courses (Requires Auth)
+   - GET  /courses/:id            : Get course syllabus, video lessons, and quiz (Requires Auth)
+   - POST /lessons/:id/complete   : Mark lesson as finished, updates progress (Requires Student)
+   - POST /quizzes/:id/submit     : Submit answers, compute score, check pass threshold (Requires Student)
+
+7. Moderated Messaging (/api/v1/messages)
+   - GET  /conversations          : List user's active chat conversations (Requires Auth)
+   - POST /conversations          : Initiate conversation with assigned mentor (Requires Auth)
+   - GET  /:conversationId        : Retrieve chat history (filtered for flagged items) (Requires Auth)
+   - POST /send                   : Send message; passes through AI content moderator (Requires Auth)
+
+8. Pitch Competitions & Events (/api/v1/events)
+   - GET  /                       : List upcoming & past pitch demo events (Requires Auth)
+   - POST /                       : Create pitch event (Requires Admin)
+   - POST /:id/submit             : Submit pitch deck and video URL (Requires Student)
+   - POST /submissions/:id/score  : Submit multi-criteria rubric evaluation (Requires Mentor)
+   - GET  /:id/leaderboard        : Retrieve event scores and winner rankings (Requires Auth)
+
+9. Administration & Moderation (/api/v1/admin)
+   - GET  /users                  : List all registered platform users (Requires Admin)
+   - PUT  /users/:id/status       : Modify user status (active, suspended) (Requires Admin)
+   - GET  /mentors/pending        : Queue of mentor credential verification requests (Requires Admin)
+   - POST /mentors/:id/approve    : Approve mentor credentials & issue verified badge (Requires Admin)
+   - GET  /moderation/flags       : Queue of flagged messages & safety violations (Requires Admin)
+   - POST /moderation/action      : Execute disciplinary action (warn, redact, suspend) (Requires Admin)
+   - GET  /audit-logs             : Inspect immutable platform audit trail (Requires Admin)
+
+====================================================================================================
+8. AGILE SCRUM SPRINTS & COMMIT ROADMAP (SPRINT 0 TO SPRINT 11)
+====================================================================================================
+
+The project was executed across 12 two-week Agile Scrum Sprints, comprising 48 commits pushed to 
+GitHub with exact calendar progression (Aug 14 to Sep 30, 2026):
+
+Sprint 0 (Aug 14 - Aug 17): Project Inception & Foundation Architecture
+  - Day 1: Project kickoff, directory architecture, root config, dependency initialization.
+  - Day 2: PostgreSQL connection pool setup, Knexfile configuration, Winston logging engine.
+  - Day 3: Express application setup, security middleware (Helmet, CORS, Rate-Limiting, HPP, XSS).
+  - Day 4: React 18 frontend scaffolding with Vite, router configuration, base styling.
+
+Sprint 1 (Aug 18 - Aug 21): Authentication & COPPA-Compliant Identity
+  - Day 5: Users database migration, bcrypt hashing, JWT access/refresh token generation.
+  - Day 6: Student registration route, DOB age calculation, and COPPA gating logic.
+  - Day 7: Guardian linking schema, cryptographic approval tokens, email notification trigger.
+  - Day 8: Frontend Auth modal with role selection, 1-click test logins, and password validation.
+
+Sprint 2 (Aug 22 - Aug 25): Guardian Supervision Portal & Access Control
+  - Day 9: Guardian-student pairing schema, confirmation token verification routes.
+  - Day 10: Guardian dashboard API endpoints: view linked children, active startups, milestones.
+  - Day 11: Guardian Dashboard UI: student progress overview, startup status, approval toggles.
+  - Day 12: Parental revocation API: instant account suspension and audit logging.
+
+Sprint 3 (Aug 26 - Aug 29): Startup Venture Incubation & Ideation Engine
+  - Day 13: Startups and business ideas database migrations (stages: ideation to growth).
+  - Day 14: Startup CRUD API endpoints, student startup ownership verification middleware.
+  - Day 15: Student Dashboard UI: venture showcase, stage progression meter, idea editor.
+  - Day 16: Lean canvas model integration: problem, solution, revenue model, value proposition.
+
+Sprint 4 (Aug 30 - Sep 02): Mentor Onboarding & Credential Verification
+  - Day 17: Mentors and mentor verifications database migrations.
+  - Day 18: Document upload API for identity proof, degrees, and industry credentials.
+  - Day 19: Administrator mentor review queue: document inspection and approval workflows.
+  - Day 20: Mentor Dashboard UI: assigned startup founders, pending reviews, profile manager.
+
+Sprint 5 (Sep 03 - Sep 06): Learning Management System (LMS) Curriculum
+  - Day 21: Courses, lessons, quizzes, and quiz questions database migrations.
+  - Day 22: LMS API endpoints: course catalog, sequential lesson navigation, quiz evaluation.
+  - Day 23: LMS View UI: video player embed, markdown lesson reader, interactive quiz component.
+  - Day 24: Student learning progress tracking, quiz attempt logging, pass/fail badges.
+
+Sprint 6 (Sep 07 - Sep 10): Milestone Escrow & Progress Tracking
+  - Day 25: Milestones and milestone progress database migrations.
+  - Day 26: Milestone management API: order indices, due dates, deliverable evidence links.
+  - Day 27: Milestone Submission Modal UI: evidence upload, progress slider, completion notes.
+  - Day 28: Mentor milestone review API: approval, rejection with notes, startup stage advancement.
+
+Sprint 7 (Sep 11 - Sep 14): AI Content Moderation & Supervised Messaging
+  - Day 29: Standalone Python AI Microservice (server.py) with standard library HTTP server.
+  - Day 30: AI Content Moderator (moderator.py): regex and NLP lexicon scanning for PII & abuse.
+  - Day 31: Socket.io WebSocket server: supervised real-time messaging with live AI interception.
+  - Day 32: Supervised Chat View UI: message thread, live moderation warnings, flagging system.
+
+Sprint 8 (Sep 15 - Sep 18): Virtual Pitch Competitions & Demo Day Engine
+  - Day 33: Pitch events, submissions, and pitch feedback database migrations.
+  - Day 34: Pitch event submission API: slide deck URL, demo video link, executive summary.
+  - Day 35: Pitch Demo Day View UI: presentation viewer, event countdown, submission form.
+  - Day 36: Mentor 3-criteria evaluation rubric: innovation, feasibility, presentation scores.
+
+Sprint 9 (Sep 19 - Sep 22): AI Idea Scorer & Mentor Matching Algorithm
+  - Day 37: AI Idea Evaluator (idea_scorer.py): automated viability scoring, market analysis.
+  - Day 38: Algorithmic mentor matcher: domain keyword overlap and experience ranking.
+  - Day 39: UI integration: 1-click AI Feasibility Analysis card on student dashboard.
+  - Day 40: Notifications and audit logging system: immutable audit trail for security events.
+
+Sprint 10 (Sep 23 - Sep 26): Administrator Console & Governance Operations
+  - Day 41: Admin Dashboard API: platform analytics, user directory, system health metrics.
+  - Day 42: Flagged message moderation queue: review flagged interactions and disciplinary actions.
+  - Day 43: Admin Dashboard UI: user management table, metric cards, moderation workbench.
+  - Day 44: System audit log viewer UI: inspection of security actions, IP addresses, timestamps.
+
+Sprint 11 (Sep 27 - Sep 30): Platform Hardening, Integration & Production Readiness
+  - Day 45: Unit & integration test suites (Jest & Supertest) for auth, startups, and moderation.
+  - Day 46: Docker containerization: Dockerfiles for server, client, AI service, and docker-compose.
+  - Day 47: Comprehensive project documentation: SRS, SDD, Database Design, Scrum Book, API docs.
+  - Day 48: Final end-to-end verification, resilient offline fallback store, and git tag v1.0.0.
+
+====================================================================================================
+9. SETUP, EXECUTION & DEMO CREDENTIALS
+====================================================================================================
+
+9.1 Prerequisites:
+  - Node.js: Version 20.x or 24.x (Installed at C:\Program Files\nodejs)
+  - Python: Version 3.10, 3.11, or 3.12 (Standard Library, zero pip dependencies required)
+  - PostgreSQL (Optional): Version 14+ (System operates in resilient fallback mode if offline)
+
+9.2 Quick Launch (One-Click Scripts):
+  Option A (Windows Command Prompt):
+    Double-click `start-all.bat` in the project root directory.
+
+  Option B (PowerShell):
+    Execute: `.\start-all.ps1`
+
+  Option C (Docker Compose):
+    Execute: `docker-compose up --build`
+
+  Option D (Manual Multi-Terminal Launch):
+    Terminal 1 (AI Microservice):
+      cd ai_service
+      python server.py
+      # Runs on http://localhost:8000
+
+    Terminal 2 (Node.js API Server):
+      cd server
+      node server.js
+      # Runs on http://localhost:5000
+
+    Terminal 3 (React Client):
+      cd client
+      npm run dev
+      # Runs on http://localhost:5173
+
+9.3 Pre-Seeded Demonstration Accounts (All Passwords: Demo1234!):
+  1. Student Account:
+     Email: aarav.student@teenpreneur.edu
+     Password: Demo1234!
+     Persona: 16-year-old student founder of "EcoSense IoT".
+
+  2. Guardian Account:
+     Email: sunita.guardian@teenpreneur.edu
+     Password: Demo1234!
+     Persona: Legal parent of Aarav Patel with supervision & approval rights.
+
+  3. Mentor Account:
+     Email: sarah.mentor@teenpreneur.edu
+     Password: Demo1234!
+     Persona: Dr. Sarah Chen, Ph.D. Verified AI & GreenTech startup mentor.
+
+  4. Administrator Account:
+     Email: admin@teenpreneur.edu
+     Password: Demo1234!
+     Persona: Platform Governance & Compliance Officer.
+
+====================================================================================================
+END OF DETAILS DOCUMENTATION
+====================================================================================================
