@@ -1,15 +1,15 @@
-const db = require('../config/database');
+const { db } = require('../config/database');
 const logger = require('../config/logger');
+const dataStore = require('../database/dataStore');
 
 class MilestoneRepository {
   async findMilestonesByStartupId(startupId) {
     try {
       return await db('milestones')
         .where({ startup_id: startupId })
-        .orderBy('order_index', 'asc');
+        .orderBy('due_date', 'asc');
     } catch (err) {
-      logger.warn(`Fallback in findMilestonesByStartupId: ${err.message}`);
-      return [];
+      return dataStore.filter('milestones', m => String(m.startup_id) === String(startupId));
     }
   }
 
@@ -17,8 +17,7 @@ class MilestoneRepository {
     try {
       return await db('milestones').where({ id }).first();
     } catch (err) {
-      logger.warn(`Fallback in findMilestoneById: ${err.message}`);
-      return null;
+      return dataStore.find('milestones', m => String(m.id) === String(id));
     }
   }
 
@@ -29,15 +28,19 @@ class MilestoneRepository {
         .update({
           evidence_text,
           evidence_url,
-          status: 'SUBMITTED',
+          status: 'submitted',
           submitted_at: db.fn.now(),
           updated_at: db.fn.now()
         })
         .returning('*');
       return updated;
     } catch (err) {
-      logger.warn(`Fallback in submitEvidence: ${err.message}`);
-      return { id, evidence_text, evidence_url, status: 'SUBMITTED' };
+      return dataStore.update('milestones', id, {
+        evidence_text,
+        evidence_url,
+        status: 'submitted',
+        submitted_at: new Date().toISOString()
+      });
     }
   }
 
@@ -46,7 +49,7 @@ class MilestoneRepository {
       const [updated] = await db('milestones')
         .where({ id })
         .update({
-          status, // 'COMPLETED' or 'REVISIONS_REQUESTED'
+          status: status.toLowerCase(), // 'completed' or 'revisions_requested'
           mentor_feedback,
           verified_by,
           verified_at: db.fn.now(),
@@ -55,8 +58,12 @@ class MilestoneRepository {
         .returning('*');
       return updated;
     } catch (err) {
-      logger.warn(`Fallback in verifyMilestone: ${err.message}`);
-      return { id, status, mentor_feedback, verified_by };
+      return dataStore.update('milestones', id, {
+        status: status.toLowerCase(),
+        mentor_feedback,
+        verified_by,
+        verified_at: new Date().toISOString()
+      });
     }
   }
 }
