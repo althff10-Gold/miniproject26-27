@@ -11,7 +11,7 @@ const learningRoutes = require('./learningRoutes');
 const startupRoutes = require('./startupRoutes');
 const milestoneRoutes = require('./milestoneRoutes');
 const messageRoutes = require('./messageRoutes');
-// const eventRoutes = require('./eventRoutes');
+const pitchRoutes = require('./pitchRoutes');
 // const notificationRoutes = require('./notificationRoutes');
 
 // Mount routes
@@ -24,7 +24,7 @@ router.use('/learning', learningRoutes);
 router.use('/startups', startupRoutes);
 router.use('/milestones', milestoneRoutes);
 router.use('/messages', messageRoutes);
-// router.use('/events', eventRoutes);
+router.use('/events', pitchRoutes);
 // router.use('/notifications', notificationRoutes);
 
 // Temporary route for Sprint 0 verification
