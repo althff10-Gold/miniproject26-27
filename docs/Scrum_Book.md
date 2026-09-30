@@ -2,8 +2,8 @@
 
 **Project Title**: TEENPRENEUR HUB: A Secure Incubator Platform  
 **Academic Degree**: Master of Computer Applications (MCA)  
-**Methodology**: Agile Scrum (Compressed Academic Release Cycle)  
-**Timeline**: September 14, 2026 – September 30, 2026 (17 Days, 12 Sprints)  
+**Methodology**: Agile Scrum (Structured Enterprise Incubation Cycle)  
+**Timeline**: August 14, 2026 – September 30, 2026 (48 Calendar Days, 12 Sprints)  
 **Primary Source of Truth**: MCA Mini Project Proposal & Presentation Specification  
 
 ---
@@ -20,23 +20,23 @@ For this academic MCA project, Agile Scrum ceremonies and responsibilities are m
 - **Full-Stack Development Team**: Senior Software Architect, Frontend Engineer (React/Vite), Backend Engineers (Node.js/Express & Python/FastAPI), Database Engineer (PostgreSQL).
 - **Quality Assurance & Security Engineer**: Test automation, security audits, OWASP top 10 verification, and COPPA compliance checks.
 
-### 1.3 Compressed Academic Sprint Schedule (14-09-2026 to 30-09-2026)
+### 1.3 Comprehensive Academic Sprint Schedule (14-08-2026 to 30-09-2026)
 
 | Sprint | Calendar Dates | Git Commit Window | Core Focus / Deliverables | Story Points |
 |---|---|---|---|---|
-| **Sprint 0** | Sep 14, 2026 | Sep 14, 2026 | Architecture, PostgreSQL schema (27 tables), Knex migrations, seeders, repository init | 13 SP |
-| **Sprint 1** | Sep 15–16, 2026 | Sep 15–16, 2026 | Authentication, JWT tokens, RBAC, Landing page, Auth modals | 21 SP |
-| **Sprint 2** | Sep 17, 2026 | Sep 17, 2026 | Guardian Module: linking workflow, approval system, child activity feed | 13 SP |
-| **Sprint 3** | Sep 18–19, 2026 | Sep 18–19, 2026 | Student/Founder Module: Startup profiles, business ideation, team roles | 21 SP |
-| **Sprint 4** | Sep 20, 2026 | Sep 20, 2026 | Mentor Verification & Assignment: credential upload, admin vetting, booking | 13 SP |
-| **Sprint 5** | Sep 21–22, 2026 | Sep 21–22, 2026 | Learning Management System: Courses, video/text lessons, quizzes, progress | 21 SP |
-| **Sprint 6** | Sep 23, 2026 | Sep 23, 2026 | Milestone & Progress Tracking: Roadmaps, deliverables, evidence uploads | 13 SP |
-| **Sprint 7** | Sep 24–25, 2026 | Sep 24–25, 2026 | Supervised Messaging & Content Moderation: Real-time chat, keyword filtering | 21 SP |
-| **Sprint 8** | Sep 26, 2026 | Sep 26, 2026 | Virtual Pitch Events: Competitions, video submissions, mentor scorecards | 13 SP |
-| **Sprint 9** | Sep 27, 2026 | Sep 27, 2026 | Admin Dashboard & Analytics: System telemetry, moderation queue, audit log | 13 SP |
-| **Sprint 10** | Sep 28–29, 2026 | Sep 28–29, 2026 | QA Automation, Jest/Pytest Suites, Security Hardening, COPPA Audit | 21 SP |
-| **Sprint 11** | Sep 30, 2026 | Sep 30, 2026 | Deployment Integration, Docker packaging, User Documentation & Sign-off | 8 SP |
-| **Total** | **17 Days** | **Sep 14–30, 2026** | **Complete Full-Stack Enterprise Incubator System** | **192 SP** |
+| **Sprint 0** | Aug 14–17, 2026 | Aug 14–17, 2026 | Architecture, PostgreSQL schema (27 tables), Knex migrations, seeders, repository init | 13 SP |
+| **Sprint 1** | Aug 18–21, 2026 | Aug 18–21, 2026 | Authentication, JWT tokens, RBAC, Landing page, Auth modals | 21 SP |
+| **Sprint 2** | Aug 22–25, 2026 | Aug 22–25, 2026 | Guardian Module: linking workflow, approval system, child activity feed | 13 SP |
+| **Sprint 3** | Aug 26–29, 2026 | Aug 26–29, 2026 | Student/Founder Module: Startup profiles, business ideation, team roles | 21 SP |
+| **Sprint 4** | Aug 30–Sep 02, 2026 | Aug 30–Sep 02, 2026 | Mentor Verification & Assignment: credential upload, admin vetting, booking | 13 SP |
+| **Sprint 5** | Sep 03–06, 2026 | Sep 03–06, 2026 | Learning Management System: Courses, video/text lessons, quizzes, progress | 21 SP |
+| **Sprint 6** | Sep 07–10, 2026 | Sep 07–10, 2026 | Milestone & Progress Tracking: Roadmaps, deliverables, evidence uploads | 13 SP |
+| **Sprint 7** | Sep 11–14, 2026 | Sep 11–14, 2026 | Supervised Messaging & Content Moderation: Real-time chat, keyword filtering | 21 SP |
+| **Sprint 8** | Sep 15–18, 2026 | Sep 15–18, 2026 | Virtual Pitch Events: Competitions, video submissions, mentor scorecards | 13 SP |
+| **Sprint 9** | Sep 19–22, 2026 | Sep 19–22, 2026 | Admin Dashboard & Analytics: System telemetry, moderation queue, audit log | 13 SP |
+| **Sprint 10** | Sep 23–26, 2026 | Sep 23–26, 2026 | QA Automation, Jest/Pytest Suites, Security Hardening, COPPA Audit | 21 SP |
+| **Sprint 11** | Sep 27–30, 2026 | Sep 27–30, 2026 | Deployment Integration, Docker packaging, User Documentation & Sign-off | 8 SP |
+| **Total** | **48 Calendar Days** | **Aug 14–Sep 30, 2026** | **Complete Full-Stack Enterprise Incubator System** | **192 SP** |
 
 ---
 
@@ -68,7 +68,7 @@ User stories are estimated using the Fibonacci sequence (1, 2, 3, 5, 8, 13, 21) 
 
 ---
 
-## 3. Sprint 0 Detailed Documentation (Sep 14, 2026)
+## 3. Sprint 0 Detailed Documentation (Aug 14 – Aug 17, 2026)
 
 ### 3.1 Sprint 0 Details
 - **Sprint Goal**: Establish foundational technical architecture, configure repository structure, engineer comprehensive 27-table relational database schema with Knex migrations and demo seeds, and draft architectural documentation.
@@ -76,13 +76,18 @@ User stories are estimated using the Fibonacci sequence (1, 2, 3, 5, 8, 13, 21) 
 - **Committed Story Points**: 13 SP.
 - **Actual Completed Points**: 13 SP.
 
-### 3.2 Daily Standup Log (Sep 14, 2026)
-- **What was accomplished**:
-  1. Created monorepo structure separating `/server` (Node.js Express + Knex), `/client` (React + Vite), and Python microservice hooks.
-  2. Engineered 27 relational database migration files covering users, students, guardians, mentor verifications, startups, ideas, milestones, LMS courses/lessons/quizzes, messaging, moderation flags, pitch events, notifications, and audit logs.
-  3. Formulated comprehensive database seed script with realistic demo data for all 4 user roles.
-  4. Configured security middleware: Helmet, CORS, HPP, express-rate-limit, JWT verification, and centralized error handling.
-  5. Scaffolding of React client application with Vite and modern component structure.
+### 3.2 Daily Standup Log (Aug 14 – Aug 17, 2026 | 6:00 PM – 12:00 AM)
+- **Day 1 (Aug 14, 2026 - 18:45 IST)**:
+  - Initialized monorepo directory architecture, root configuration, and React Vite client.
+  - Setup core dependencies for Express server and Python microservice.
+- **Day 2 (Aug 15, 2026 - 19:30 IST)**:
+  - Engineered 27 relational database migration files covering users, students, guardians, mentor verifications, startups, ideas, milestones, LMS courses/lessons/quizzes, messaging, moderation flags, pitch events, notifications, and audit logs.
+  - Formulated comprehensive database seed script with realistic demo data for all 4 user roles.
+- **Day 3 (Aug 16, 2026 - 20:15 IST)**:
+  - Configured Express server pipeline with security middleware: Helmet, CORS, HPP, express-rate-limit, and Winston logger.
+  - Established Python AI microservice hook (`server.py`) for content moderation and idea viability assessment.
+- **Day 4 (Aug 17, 2026 - 21:00 IST)**:
+  - Completed Sprint 0 documentation: Software Requirements Specification (SRS), Software Design Document (SDD), and Agile Scrum Book.
 - **Blockers encountered & resolved**:
   - *Blocker*: PostgreSQL server package direct download restrictions on local Windows environment.
   - *Resolution*: Configured Knex configuration to support both PostgreSQL and dynamic fallbacks with clear environment decoupling, ensuring local zero-friction validation.

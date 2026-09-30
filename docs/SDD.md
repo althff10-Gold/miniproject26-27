@@ -2,7 +2,7 @@
 ## TeenPreneur Hub: System Architecture & Design
 
 **Version**: 1.0.0  
-**Date**: September 14, 2026  
+**Date**: August 17, 2026  
 **Degree**: Master of Computer Applications (MCA) Mini Project  
 **Author**: Muhammed Althaf O K  
 
