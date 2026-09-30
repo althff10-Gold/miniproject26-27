@@ -13,12 +13,16 @@ const validate = (req, res, next) => {
       value: err.value
     }));
 
+    const firstError = formattedErrors[0]?.message || 'Input validation failed';
+    const combinedMessage = formattedErrors.map(e => `${e.field}: ${e.message}`).join('; ');
+
     return res.status(422).json({
       success: false,
       error: {
         code: 'VALIDATION_ERROR',
-        message: 'Input validation failed',
-        details: formattedErrors
+        message: firstError,
+        details: formattedErrors,
+        summary: combinedMessage
       }
     });
   }

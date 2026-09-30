@@ -54,18 +54,18 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', init
         onClose();
       } else {
         const payload = {
-          email,
+          email: email.trim(),
           password,
           role,
-          firstName,
-          lastName,
-          phone,
-          dateOfBirth: role === 'student' ? dateOfBirth : undefined,
-          schoolName: role === 'student' ? schoolName : undefined,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          phone: phone.trim() || undefined,
+          dateOfBirth: role === 'student' && dateOfBirth ? dateOfBirth : undefined,
+          schoolName: role === 'student' && schoolName.trim() ? schoolName.trim() : undefined,
           gradeLevel: role === 'student' ? gradeLevel : undefined,
-          guardianEmail: role === 'student' ? guardianEmail : undefined,
+          guardianEmail: role === 'student' && guardianEmail.trim() ? guardianEmail.trim() : undefined,
           relationshipType: role === 'guardian' ? relationshipType : undefined,
-          company: role === 'mentor' ? company : undefined,
+          company: role === 'mentor' && company.trim() ? company.trim() : undefined,
           expertiseAreas: role === 'mentor' ? expertiseAreas : undefined,
           yearsExperience: role === 'mentor' ? Number(yearsExperience) : undefined
         };
@@ -79,7 +79,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', init
         }
       }
     } catch (err) {
-      setError(err.response?.data?.error?.message || err.message || 'Authentication operation failed');
+      const apiErr = err.response?.data?.error;
+      const errorMsg = apiErr?.message || apiErr?.summary || err.response?.data?.message || err.message || 'Authentication operation failed';
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

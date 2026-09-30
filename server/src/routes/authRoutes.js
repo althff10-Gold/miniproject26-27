@@ -26,7 +26,8 @@ router.post(
       .trim().notEmpty().withMessage('Last name is required')
       .isLength({ max: 50 }).withMessage('Last name must be under 50 characters'),
     body('guardianEmail')
-      .optional()
+      .optional({ values: 'falsy' })
+      .trim()
       .isEmail().withMessage('Guardian email must be a valid email address')
       .normalizeEmail(),
     validate
@@ -66,7 +67,7 @@ router.post(
   '/guardian-approval',
   [
     body('token').notEmpty().withMessage('Approval token is required'),
-    body('decision').optional().isIn(['approved', 'rejected']),
+    body('decision').optional({ values: 'falsy' }).isIn(['approved', 'rejected']),
     validate
   ],
   (req, res, next) => authController.guardianApproval(req, res, next)
