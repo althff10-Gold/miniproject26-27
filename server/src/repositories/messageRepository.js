@@ -1,5 +1,6 @@
-const db = require('../config/database');
+const { db } = require('../config/database');
 const logger = require('../config/logger');
+const dataStore = require('../database/dataStore');
 
 class MessageRepository {
   async findMessagesByChannel(channelId, limit = 50) {
@@ -9,20 +10,21 @@ class MessageRepository {
         .orderBy('created_at', 'asc')
         .limit(limit);
     } catch (err) {
-      logger.warn(`Fallback in findMessagesByChannel: ${err.message}`);
-      return [];
+      const msgs = dataStore.filter('messages', m => String(m.channel_id) === String(channelId) || String(m.conversation_id) === String(channelId));
+      return msgs.slice(-limit);
     }
   }
 
   async createMessage(messageData) {
     try {
-      const [msg] = await db('messages')
-        .insert(messageData)
-        .returning('*');
+      const [msg] = await db('messages').insert(messageData).returning('*');
       return msg;
     } catch (err) {
-      logger.warn(`Fallback in createMessage: ${err.message}`);
-      return { id: 'msg-' + Date.now(), ...messageData, created_at: new Date() };
+      return dataStore.insert('messages', {
+        ...messageData,
+        is_flagged: messageData.is_flagged || false,
+        created_at: new Date().toISOString()
+      });
     }
   }
 
@@ -39,8 +41,17 @@ class MessageRepository {
         .returning('*');
       return updated;
     } catch (err) {
-      logger.warn(`Fallback in flagMessage: ${err.message}`);
-      return { id: messageId, is_flagged: true, flag_reason: reason };
+      dataStore.insert('message_flags', {
+        message_id: messageId,
+        reason,
+        severity: 'medium',
+        status: 'pending'
+      });
+      return dataStore.update('messages', messageId, {
+        is_flagged: true,
+        flag_reason: reason,
+        flagged_by: flaggedBy
+      });
     }
   }
 }

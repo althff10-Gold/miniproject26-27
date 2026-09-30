@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import UserPortalBanner from './components/UserPortalBanner';
@@ -12,18 +12,29 @@ import GuardianApprovalModal from './components/GuardianApprovalModal';
 import GuardianDashboard from './components/GuardianDashboard';
 import StudentDashboard from './components/StudentDashboard';
 import MentorDashboard from './components/MentorDashboard';
+import AdminDashboard from './components/AdminDashboard';
+import LmsView from './components/LmsView';
+import PitchDemoDayView from './components/PitchDemoDayView';
+import SupervisedChatView from './components/SupervisedChatView';
 
 function MainLayout() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
   const [authRole, setAuthRole] = useState('student');
   const [consentModalOpen, setConsentModalOpen] = useState(false);
-  const [currentView, setCurrentView] = useState('landing'); // 'landing', 'guardian', 'student', 'mentor'
+  
+  // Views: 'landing' | 'student' | 'guardian' | 'mentor' | 'admin' | 'lms' | 'pitch' | 'chat'
+  const [currentView, setCurrentView] = useState('landing');
 
-  const showGuardianPortal = currentView === 'guardian' || (user && user.role === 'guardian');
-  const showStudentPortal = currentView === 'student' || (user && user.role === 'student');
-  const showMentorPortal = currentView === 'mentor' || (user && user.role === 'mentor');
+  // When user logs in as admin, switch directly to admin view
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role === 'admin' && currentView === 'landing') {
+        setCurrentView('admin');
+      }
+    }
+  }, [isAuthenticated, user]);
 
   const handleOpenAuth = (mode = 'login', role = 'student') => {
     if (role === 'guardian' && user && user.role === 'guardian') {
@@ -36,6 +47,10 @@ function MainLayout() {
     }
     if (role === 'mentor' && user && user.role === 'mentor') {
       setCurrentView('mentor');
+      return;
+    }
+    if (role === 'admin' && user && user.role === 'admin') {
+      setCurrentView('admin');
       return;
     }
     setAuthMode(mode);
@@ -52,12 +67,20 @@ function MainLayout() {
       />
       
       <main style={{ flex: 1 }}>
-        {showGuardianPortal ? (
+        {currentView === 'guardian' ? (
           <GuardianDashboard onBack={() => setCurrentView('landing')} />
-        ) : showStudentPortal ? (
+        ) : currentView === 'student' ? (
           <StudentDashboard onBack={() => setCurrentView('landing')} />
-        ) : showMentorPortal ? (
+        ) : currentView === 'mentor' ? (
           <MentorDashboard user={user} onBack={() => setCurrentView('landing')} />
+        ) : currentView === 'admin' ? (
+          <AdminDashboard onBack={() => setCurrentView('landing')} />
+        ) : currentView === 'lms' ? (
+          <LmsView onBack={() => setCurrentView('landing')} />
+        ) : currentView === 'pitch' ? (
+          <PitchDemoDayView onBack={() => setCurrentView('landing')} />
+        ) : currentView === 'chat' ? (
+          <SupervisedChatView onBack={() => setCurrentView('landing')} />
         ) : (
           <>
             <UserPortalBanner
@@ -65,6 +88,10 @@ function MainLayout() {
               onOpenGuardianDashboard={() => setCurrentView('guardian')}
               onOpenStudentDashboard={() => setCurrentView('student')}
               onOpenMentorDashboard={() => setCurrentView('mentor')}
+              onOpenAdminDashboard={() => setCurrentView('admin')}
+              onOpenLms={() => setCurrentView('lms')}
+              onOpenPitch={() => setCurrentView('pitch')}
+              onOpenChat={() => setCurrentView('chat')}
             />
             <Hero onOpenAuth={handleOpenAuth} />
             <IncubationTracks onOpenAuth={handleOpenAuth} />

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import api from '../services/api';
 import './LmsView.css';
 
-const LmsView = () => {
+const LmsView = ({ onBack }) => {
   const [activeTrackIndex, setActiveTrackIndex] = useState(0);
   const [activeLessonIndex, setActiveLessonIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -94,9 +95,18 @@ const LmsView = () => {
     setSelectedOption(optionIdx);
   };
 
-  const handleVerifyQuiz = () => {
+  const handleVerifyQuiz = async () => {
     if (selectedOption === null) return;
     const isCorrect = selectedOption === currentLesson.correctAnswer;
+
+    try {
+      await api.post(`/learning/lessons/${currentLesson.id}/quiz`, {
+        selectedAnswer: selectedOption
+      });
+    } catch (err) {
+      console.warn('LMS quiz submit warning:', err.message);
+    }
+
     setQuizResult({
       passed: isCorrect,
       explanation: currentLesson.explanation
@@ -107,94 +117,80 @@ const LmsView = () => {
     }
   };
 
-  const totalLessonsCount = tracks.reduce((acc, t) => acc + t.lessons.length, 0);
-  const completedCount = Object.keys(completedLessons).length;
-  const progressPercent = Math.round((completedCount / totalLessonsCount) * 100);
+  const handleLessonSwitch = (idx) => {
+    setActiveLessonIndex(idx);
+    setSelectedOption(null);
+    setQuizResult(null);
+  };
 
   return (
-    <div className="lms-container glassmorphism">
+    <div className="lms-container glassmorphism" style={{ maxWidth: '1240px', margin: '30px auto', padding: '0 24px' }}>
+      {onBack && (
+        <div style={{ marginBottom: '16px' }}>
+          <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--secondary)', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem' }}>
+            &larr; Back to Platform Home
+          </button>
+        </div>
+      )}
+
+      {/* Course Header */}
       <div className="lms-header">
         <div>
-          <h2>🎓 Teen Entrepreneur Learning Academy</h2>
-          <p className="lms-subtitle">
-            Interactive bite-sized courses designed for school & early-college innovators.
-          </p>
+          <span className="lms-badge">{currentTrack.badge}</span>
+          <h2>{currentTrack.title}</h2>
+          <p className="lms-subtitle">{currentTrack.description}</p>
         </div>
-        <div className="lms-overall-progress">
-          <div className="progress-text">
-            <span>Overall Academy Progress</span>
-            <strong>{progressPercent}%</strong>
-          </div>
-          <div className="progress-bar-bg">
-            <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }}></div>
-          </div>
+        <div className="track-switcher">
+          {tracks.map((t, idx) => (
+            <button
+              key={t.id}
+              className={`track-tab-btn ${activeTrackIndex === idx ? 'active' : ''}`}
+              onClick={() => { setActiveTrackIndex(idx); setActiveLessonIndex(0); setSelectedOption(null); setQuizResult(null); }}
+            >
+              {t.title.split(' ')[0]} {t.title.split(' ')[1]}
+            </button>
+          ))}
         </div>
       </div>
 
       <div className="lms-layout">
-        {/* Sidebar Track Navigation */}
+        {/* Sidebar Lesson List */}
         <aside className="lms-sidebar">
-          {tracks.map((track, tIdx) => (
-            <div key={track.id} className="track-group">
+          <h4>Course Modules</h4>
+          <div className="lessons-list">
+            {currentTrack.lessons.map((les, idx) => (
               <div
-                className={`track-title ${activeTrackIndex === tIdx ? 'active' : ''}`}
-                onClick={() => {
-                  setActiveTrackIndex(tIdx);
-                  setActiveLessonIndex(0);
-                  setSelectedOption(null);
-                  setQuizResult(null);
-                }}
+                key={les.id}
+                className={`lesson-item ${activeLessonIndex === idx ? 'active' : ''} ${completedLessons[les.id] ? 'completed' : ''}`}
+                onClick={() => handleLessonSwitch(idx)}
               >
-                <div>
-                  <h4>{track.title}</h4>
-                  <span className="track-badge">{track.badge}</span>
+                <div className="lesson-item-left">
+                  <span className="lesson-status-icon">
+                    {completedLessons[les.id] ? '✓' : idx + 1}
+                  </span>
+                  <div>
+                    <div className="lesson-item-title">{les.title}</div>
+                    <div className="lesson-item-time">{les.duration}</div>
+                  </div>
                 </div>
               </div>
-
-              {activeTrackIndex === tIdx && (
-                <div className="lessons-list">
-                  {track.lessons.map((les, lIdx) => (
-                    <button
-                      key={les.id}
-                      className={`lesson-item ${activeLessonIndex === lIdx ? 'active' : ''}`}
-                      onClick={() => {
-                        setActiveLessonIndex(lIdx);
-                        setSelectedOption(null);
-                        setQuizResult(null);
-                      }}
-                    >
-                      <span className="lesson-icon">
-                        {completedLessons[les.id] ? '✅' : '📖'}
-                      </span>
-                      <div className="lesson-info">
-                        <span className="lesson-name">{les.title}</span>
-                        <span className="lesson-dur">{les.duration}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </aside>
 
-        {/* Lesson & Quiz Viewer */}
-        <main className="lms-main">
-          <div className="lesson-viewer">
-            <div className="lesson-header">
-              <span className="badge-track">{currentTrack.title}</span>
-              <h3>{currentLesson.title}</h3>
-              <span className="lesson-tag">⏱️ {currentLesson.duration}</span>
-            </div>
+        {/* Main Lesson Content */}
+        <main className="lms-content-panel">
+          <div className="lesson-reader">
+            <h3>{currentLesson.title}</h3>
+            <p className="lesson-text">{currentLesson.content}</p>
 
-            <div className="lesson-text-body">
-              <p>{currentLesson.content}</p>
-            </div>
-
-            {/* Interactive Concept Check */}
-            <div className="concept-check-box">
-              <h4>🎯 Knowledge Check: Test Your Comprehension</h4>
-              <p className="quiz-q">{currentLesson.quizQuestion}</p>
+            {/* Embedded Interactive Quiz */}
+            <div className="quiz-card">
+              <div className="quiz-header">
+                <span className="quiz-tag">Checkpoint Quiz</span>
+                <span className="quiz-points">+25 Incubator XP</span>
+              </div>
+              <h4 className="quiz-question">{currentLesson.quizQuestion}</h4>
 
               <div className="quiz-options">
                 {currentLesson.options.map((opt, oIdx) => (

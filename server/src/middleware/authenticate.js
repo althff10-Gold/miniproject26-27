@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const { jwt: jwtConfig } = require('../config/auth');
 const { db } = require('../config/database');
 const ApiError = require('../utils/ApiError');
+const dataStore = require('../database/dataStore');
 
 /**
  * Authentication middleware - verifies JWT token
@@ -21,10 +22,15 @@ const authenticate = async (req, res, next) => {
     const decoded = jwt.verify(token, jwtConfig.secret);
 
     // Fetch user from database to ensure they still exist and are active
-    const user = await db('users')
-      .where({ id: decoded.id })
-      .whereNot({ status: 'deactivated' })
-      .first();
+    let user;
+    try {
+      user = await db('users')
+        .where({ id: decoded.id })
+        .whereNot({ status: 'deactivated' })
+        .first();
+    } catch (dbErr) {
+      user = dataStore.find('users', u => String(u.id) === String(decoded.id) && u.status !== 'deactivated');
+    }
 
     if (!user) {
       throw new ApiError(401, 'User not found or account deactivated.');
