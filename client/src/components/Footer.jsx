@@ -65,15 +65,15 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Academic Meta */}
+        {/* Incubation Tracks */}
         <div>
-          <h4 style={{ fontSize: '1rem', color: '#fff', marginBottom: '18px' }}>Project Specification</h4>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', lineHeight: 1.6, marginBottom: '8px' }}>
-            <strong>Degree</strong>: Master of Computer Applications (MCA) Mini Project
-          </p>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', lineHeight: 1.6 }}>
-            <strong>Methodology</strong>: Agile Scrum (12 Sprints, Aug 14 – Sep 30, 2026)
-          </p>
+          <h4 style={{ fontSize: '1rem', color: '#fff', marginBottom: '18px' }}>Incubation Tracks</h4>
+          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+            <li><a href="#tracks">Tech & AI Innovation</a></li>
+            <li><a href="#tracks">Social Impact & Climate</a></li>
+            <li><a href="#tracks">Creative Arts & Media</a></li>
+            <li><a href="#tracks">Health & Wellness</a></li>
+          </ul>
         </div>
       </div>
 
